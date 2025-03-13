@@ -1,4 +1,4 @@
-package com.tourplan
+package com.tourpal
 
 import org.junit.Test
 
