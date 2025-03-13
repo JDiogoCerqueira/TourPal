@@ -11,9 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tourpal.R
+
 
 @Composable
 fun StartingPage(navController: NavController) {
@@ -39,4 +41,10 @@ fun StartingPage(navController: NavController) {
             Text("Create Account")
         }
     }
+}
+
+@Preview(showBackground = true, backgroundColor = 0x0F3F55FF)
+@Composable
+fun StartingPagePreview() {
+    StartingPage(navController = NavController(androidx.compose.ui.platform.LocalContext.current))
 }

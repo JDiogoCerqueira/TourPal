@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,6 +16,7 @@ import com.tourpal.ui.screens.StartingPage
 import com.tourpal.ui.screens.LoginPage
 import com.tourpal.ui.screens.SigninPage
 import com.tourpal.ui.screens.ChooseModePage
+import androidx.compose.runtime.Composable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,4 +40,14 @@ class MainActivity : ComponentActivity() {
 
     }
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStartingPage(){
+    TourPalTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            StartingPage(rememberNavController())
+        }
+    }
 }
