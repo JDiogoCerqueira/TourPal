@@ -3,4 +3,5 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="web_client_id">145900704034-m3ugsh8vh1b28bni04kumpucf1bpsnvs.apps.googleusercontent.com</string> <!-- Web Client ID from Google Cloud Console -->
 </resources>

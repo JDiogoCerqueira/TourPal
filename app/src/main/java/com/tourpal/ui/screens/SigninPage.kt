@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.tourpal.R
+import com.tourpal.ui.theme.TourPalTheme
 
 @Composable
 fun SigninPage(navController: NavController) {
@@ -68,5 +71,9 @@ fun SigninPage(navController: NavController) {
 @Preview
 @Composable
 fun SigninPagePreview() {
-    SigninPage(navController = NavController(context = androidx.compose.ui.platform.LocalContext.current))
+    TourPalTheme {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            SigninPage(navController = NavController(context = androidx.compose.ui.platform.LocalContext.current))
+        }
+    }
 }
