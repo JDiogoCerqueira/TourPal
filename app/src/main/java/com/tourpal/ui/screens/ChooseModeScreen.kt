@@ -2,7 +2,6 @@ package com.tourpal.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tourpal.R
 
 @Composable
-fun ChooseModePage(navController: NavController) {
+fun ChooseModeScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -50,6 +49,6 @@ fun ChooseModePage(navController: NavController) {
 
 @Preview
 @Composable
-fun ChooseModePagePreview() {
-    ChooseModePage(navController = rememberNavController())
+fun ChooseModeScreenPreview() {
+    ChooseModeScreen(navController = rememberNavController())
 }

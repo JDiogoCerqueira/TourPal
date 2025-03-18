@@ -1,6 +1,5 @@
 package com.tourpal.ui.screens
 
-import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -28,7 +27,7 @@ import com.tourpal.R
 import com.tourpal.ui.viewmodels.LoginViewModel
 
 @Composable
-fun LoginPage(navController: NavController) {
+fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     val viewModel = remember { LoginViewModel.create(context) }
     val state = viewModel.state.value

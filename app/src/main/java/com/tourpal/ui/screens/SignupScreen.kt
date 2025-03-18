@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
-
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -26,7 +25,7 @@ import com.tourpal.R
 import com.tourpal.ui.theme.TourPalTheme
 
 @Composable
-fun SigninPage(navController: NavController) {
+fun SignupScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -70,10 +69,10 @@ fun SigninPage(navController: NavController) {
 
 @Preview
 @Composable
-fun SigninPagePreview() {
+fun SignupScreenPreview() {
     TourPalTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            SigninPage(navController = NavController(context = androidx.compose.ui.platform.LocalContext.current))
+            SignupScreen(navController = NavController(context = androidx.compose.ui.platform.LocalContext.current))
         }
     }
 }
