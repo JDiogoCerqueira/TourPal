@@ -54,7 +54,7 @@ fun LoginPage(navController: NavController) {
             .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TourPalLogo(size = 300) // TourPal Logo
+        TourPalLogo(size = 300, text = false) // TourPal Logo
         Spacer(modifier = Modifier.height(24.dp))
         GoogleSignInButton(
             onClick = { viewModel.signInWithGoogle(context) },

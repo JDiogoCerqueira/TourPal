@@ -23,7 +23,7 @@ import androidx.compose.ui.res.painterResource
 import com.tourpal.R
 
 @Composable
-fun TourPalLogo(modifier: Modifier = Modifier, size: Int = 150) {
+fun TourPalLogo(modifier: Modifier = Modifier, size: Int = 150, text: Boolean = true) {
     Box(
         modifier = modifier
             .size(size.dp) // Set the size of the Box
@@ -39,16 +39,18 @@ fun TourPalLogo(modifier: Modifier = Modifier, size: Int = 150) {
                 .scale(1.55f) // Scale the image to crop the transparent area
                 .align(Alignment.Center) // Center the image
         )
-        Text(
-            text = "TourPal",
-            fontSize = (size * 0.08).sp,
-            fontWeight = FontWeight.SemiBold,
-            fontFamily = FontFamily.Default,
-            color = Color(0xFFDCDCDC),
-            modifier = Modifier
-                .padding(8.dp)
-                .offset(y = (size * 0.45).dp)
-        )
+        if (text) {
+            Text(
+                text = "TourPal",
+                fontSize = (size * 0.08).sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily.Default,
+                color = Color(0xFFDCDCDC),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .offset(y = (size * 0.45).dp)
+            )
+        }
     }
 }
 
@@ -56,5 +58,5 @@ fun TourPalLogo(modifier: Modifier = Modifier, size: Int = 150) {
 @Preview
 @Composable
 fun TourPalLogoPreview() {
-    TourPalLogo()
+    TourPalLogo(text = false)
 }
