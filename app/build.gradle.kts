@@ -84,6 +84,7 @@ dependencies {
 
     // GSON
     implementation(libs.gson)
+    implementation(libs.firebase.firestore.ktx)
 
 
     // Testing
