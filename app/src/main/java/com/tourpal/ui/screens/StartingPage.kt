@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun StartingScreen(navController: NavController) {
+fun StartingPage(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -59,6 +59,6 @@ fun StartingScreen(navController: NavController) {
 
 @Preview(showBackground = true, backgroundColor = 0x0F3F55FF)
 @Composable
-fun StartingScreenPreview() {
-    StartingScreen(navController = rememberNavController())
+fun StartingPagePreview() {
+    StartingPage(navController = rememberNavController())
 }
