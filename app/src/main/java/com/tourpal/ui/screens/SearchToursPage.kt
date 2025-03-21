@@ -47,6 +47,8 @@ import androidx.navigation.compose.rememberNavController
 import com.tourpal.ui.theme.TourPalTheme
 import com.tourpal.viewmodels.SearchViewModel
 import TopBar
+import androidx.compose.material3.Scaffold
+import com.tourpal.ui.components.NavBar
 
 @Composable
 fun SearchToursPage(navController: NavHostController) {
@@ -65,178 +67,178 @@ fun SearchToursPage(navController: NavHostController) {
         navController.navigate("tourResultsPage/$query")
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TopBar()
-        Spacer(modifier = Modifier.height(16.dp))
-
+    Scaffold(
+        bottomBar = {
+            NavBar(navController = navController)
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(16.dp))
-                .padding(16.dp)
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Subtitle: "Where's your next?"
-            Text(
-                text = "Where's your next?",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = Color.Black
-                ),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            TopBar()
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Search Bar
-            OutlinedTextField(
-                value = searchText,
-                onValueChange = { searchText = it },
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(8.dp)),
-                placeholder = {
-                    Text(
-                        text = "Search",
-                        color = Color.Gray
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        tint = Color.Gray
-                    )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Search // Show a "Search" action on the keyboard
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        // Add the search term to recent searches and navigate
-                        addRecentSearchAndNavigate(searchText)
-                        // Clear the search bar after submission
-                        searchText = ""
-                    }
-                ),
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Gray,
-                    unfocusedIndicatorColor = Color.LightGray,
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            // Nearby Chip
-            Surface(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .clickable {
-                        // Navigate to a nearby tours page
-                        navController.navigate("nearby_tours")
-                    }
-                    .background(Color.Transparent),
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFFE0E0E0), // Light gray background for the chip
-                shadowElevation = 2.dp
+                    .background(Color.White, RoundedCornerShape(16.dp))
+                    .padding(16.dp)
             ) {
-                Row(
+                // Subtitle: "Where's your next?"
+                Text(
+                    text = "Where's your next?",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    ),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Search Bar
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { searchText = it },
                     modifier = Modifier
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxWidth()
+                        .background(Color.White, RoundedCornerShape(8.dp)),
+                    placeholder = {
+                        Text(
+                            text = "Search",
+                            color = Color.Gray
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Icon",
+                            tint = Color.Gray
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            addRecentSearchAndNavigate(searchText)
+                            searchText = ""
+                        }
+                    ),
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Gray,
+                        unfocusedIndicatorColor = Color.LightGray,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                )
+
+                // Nearby Chip
+                Surface(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .clickable {
+                            navController.navigate("nearby_tours")
+                        }
+                        .background(Color.Transparent),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0xFFE0E0E0),
+                    shadowElevation = 2.dp
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location Icon",
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.Gray
-                    )
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "Location Icon",
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.Gray
+                        )
+                        Text(
+                            text = "Nearby",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = 14.sp,
+                                color = Color.Black
+                            ),
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
+
+                // Recently Searched Section
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Recently Searched",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        color = Color.Black
+                    ),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                if (viewModel.recentSearches.isEmpty()) {
                     Text(
-                        text = "Nearby",
+                        text = "No recent searches",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 14.sp,
-                            color = Color.Black
+                            color = Color.Gray
                         ),
-                        modifier = Modifier.padding(start = 4.dp)
+                        modifier = Modifier.padding(vertical = 12.dp)
                     )
-                }
-            }
-
-            // Recently Searched Section
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Recently Searched",
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp,
-                    color = Color.Black
-                ),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            // List of recent searches
-            if (viewModel.recentSearches.isEmpty()) {
-                Text(
-                    text = "No recent searches",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    ),
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-            } else {
-                Column {
-                    viewModel.recentSearches.forEachIndexed { index, query ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Min),
-                            verticalAlignment = CenterVertically
-                        ) {
-                            Column(
+                } else {
+                    Column {
+                        viewModel.recentSearches.forEachIndexed { index, query ->
+                            Row(
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min),
+                                verticalAlignment = CenterVertically
                             ) {
-                                Text(
-                                    text = query,
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontSize = 14.sp,
-                                        color = Color.Black
-                                    ),
+                                Column(
                                     modifier = Modifier
-                                        .clickable {
-                                            // On click, add to recent searches and navigate
-                                            addRecentSearchAndNavigate(query)
-                                        }
-                                        .padding(vertical = 12.dp)
-                                )
-                                if (index < viewModel.recentSearches.size - 1) {
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(horizontal = 4.dp),
-                                        thickness = 0.5.dp,
-                                        color = Color.LightGray
+                                        .weight(1f)
+                                ) {
+                                    Text(
+                                        text = query,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontSize = 14.sp,
+                                            color = Color.Black
+                                        ),
+                                        modifier = Modifier
+                                            .clickable {
+                                                addRecentSearchAndNavigate(query)
+                                            }
+                                            .padding(vertical = 12.dp)
                                     )
-                                }
-                            }
-                            Icon(
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "Clear search",
-                                tint = Color.Gray,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable {
-                                        // Clear search term
-                                        viewModel.clearSearch(context, query)
+                                    if (index < viewModel.recentSearches.size - 1) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(horizontal = 4.dp),
+                                            thickness = 0.5.dp,
+                                            color = Color.LightGray
+                                        )
                                     }
-                                    .padding(8.dp)
-
-                            )
+                                }
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Clear search",
+                                    tint = Color.Gray,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clickable {
+                                            viewModel.clearSearch(context, query)
+                                        }
+                                        .padding(8.dp)
+                                )
+                            }
                         }
                     }
                 }

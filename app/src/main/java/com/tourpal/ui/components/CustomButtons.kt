@@ -18,10 +18,11 @@ import androidx.compose.ui.unit.dp
 import com.tourpal.R
 
 @Composable
-fun DefaultButton(s: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun DefaultButton(s: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Button(
         onClick = onClick,
         modifier = modifier,
+        enabled = enabled
     ){
         Text(
             text = s,
@@ -65,6 +66,6 @@ fun GoogleSignInButtonPreview() {
 @Preview
 @Composable
 fun DefaultButtonPreview() {
-    DefaultButton(s = "Login", onClick = {})
+    DefaultButton(s = "Login", onClick = {}, enabled = true)
 }
 

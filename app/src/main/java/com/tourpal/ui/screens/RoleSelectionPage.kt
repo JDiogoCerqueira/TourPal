@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.tourpal.R
 import com.tourpal.ui.theme.TourPalTheme
 import com.tourpal.ui.components.DefaultButton
+import com.tourpal.ui.components.NavBar
 
 @Composable
 fun ShowAlertDialog(showDialog: Boolean, onDismiss: () -> Unit) {
@@ -37,51 +39,46 @@ fun ShowAlertDialog(showDialog: Boolean, onDismiss: () -> Unit) {
 @Composable
 fun RoleSelectionPage(navController: NavHostController) {
 
+  Scaffold(
+    bottomBar = {
+      NavBar(navController = navController)
+    }
+  ) { innerPadding ->
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+      modifier = Modifier
+        .fillMaxSize()
+        .padding(innerPadding),
+      verticalArrangement = Arrangement.Center,
+      horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val showDialog = remember { mutableStateOf(false) }
-        ShowAlertDialog(showDialog.value) { showDialog.value = false }
-        Image(
-            painter = painterResource(id = R.drawable.tourpal_logo),
-            contentDescription = "Tourpal Logo",
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-        Text(
-            text = "🗺️ Select Your Role 🗺️",
-            color = Color.White, // White for contrast against dark background
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 48.dp)
-        )
-        DefaultButton(
-          onClick = {
-              navController.navigate("searchToursPage")
-          },
-          s = "I'm a tourist",
-          modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
-        )
+      val showDialog = remember { mutableStateOf(false) }
+      ShowAlertDialog(showDialog.value) { showDialog.value = false }
+      Image(
+        painter = painterResource(id = R.drawable.tourpal_logo),
+        contentDescription = "Tourpal Logo",
+        modifier = Modifier.padding(bottom = 32.dp)
+      )
+      Text(
+        text = "🗺️ Select Your Role 🗺️",
+        color = Color.White, // White for contrast against dark background
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(bottom = 48.dp)
+      )
+      DefaultButton(
+        s = "I'm a tourist",
+        onClick = {
+          navController.navigate("searchToursPage")
+        },
+        modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+      )
 
-        DefaultButton(
-          onClick = {
-              showDialog.value = true
-          },
-          s = "I'm a tour guide",
-          modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp).padding(top = 16.dp)
-        )
+      DefaultButton(
+        s = "I'm a tour guide",
+        onClick = { showDialog.value = true },
+        modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp).padding(top = 16.dp)
+      )
     }
-
-
+  }
 }
-
-@Preview
-@Composable
-fun RoleSelectionPagePreview() {
-    TourPalTheme {
-        RoleSelectionPage(navController = rememberNavController())
-    }
-}
-

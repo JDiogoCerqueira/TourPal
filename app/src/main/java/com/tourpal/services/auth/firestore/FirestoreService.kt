@@ -1,4 +1,4 @@
-package com.tourpal.firestore
+package com.tourpal.services.auth.firestore
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tourpal.services.auth.User

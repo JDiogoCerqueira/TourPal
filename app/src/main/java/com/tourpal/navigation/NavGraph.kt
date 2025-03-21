@@ -5,11 +5,24 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.tourpal.services.auth.AuthenticationServiceProvider
+import com.tourpal.services.auth.AuthenticationServices
 import com.tourpal.ui.screens.*
 
 @Composable
-fun NavGraph(navController: NavHostController = rememberNavController()) {
-    NavHost(navController = navController, startDestination = "loginPage") {
+fun NavGraph(
+    navController: NavHostController = rememberNavController(),
+    authServices: AuthenticationServices = AuthenticationServiceProvider.provideAuthenticationService(
+        navController.context
+    )
+) {
+    val startDestination = if (FirebaseAuth.getInstance().currentUser != null)
+        "roleSelectionPage"
+    else
+        "startingPage"
+
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("startingPage") {
             StartingPage(navController)
         }
@@ -28,6 +41,20 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
 
         composable("searchToursPage") {
             SearchToursPage(navController)
+        }
+
+        composable("profilePage") {
+            ProfileScreen(
+                authServices = authServices,
+                onSignOutSuccess = {
+                    navController.navigate("loginPage") {
+                        // Clear back stack to prevent returning to profile
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
 
         composable("tourResultsPage/{query}") { backStackEntry ->
