@@ -11,6 +11,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tourpal.R
 import kotlinx.coroutines.tasks.await
 
@@ -82,6 +83,29 @@ class AuthenticationServicesImpl(
                     email = firebaseUser.email ?: "",
                     name = firebaseUser.displayName ?: "Unknown"
                 )
+
+                // Get Firestore instance
+                val firestore = FirebaseFirestore.getInstance()
+
+                // Check if the user document already exists
+                val userRef = firestore.collection("user").document(user.id)
+                val documentSnapshot = userRef.get().await()
+
+                if (!documentSnapshot.exists()) {
+                    // If the user does not exist, create a new document
+                    val userData = hashMapOf(
+                        "id" to user.id,
+                        "email" to user.email,
+                        "regDate" to com.google.firebase.Timestamp.now()
+                    )
+
+                    userRef.set(userData).await()
+                    Log.d("Authentication", "New user created in Firestore")
+                }else {
+                    Log.d("Authentication", "User already exists in Firestore")
+                }
+
+
                 Result.Success(user)
             } else {
                 // Catch any unrecognized custom credential type here.
