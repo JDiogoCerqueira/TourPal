@@ -95,7 +95,8 @@ class AuthenticationServicesImpl(
                     // If the user does not exist, create a new document
                     val userData = hashMapOf(
                         "id" to user.id,
-                        "email" to user.email
+                        "email" to user.email,
+                        "regDate" to com.google.firebase.Timestamp.now()
                     )
 
                     userRef.set(userData).await()
