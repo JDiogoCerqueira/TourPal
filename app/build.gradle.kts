@@ -16,6 +16,8 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] =
+            project.properties["GOOGLE_MAPS_API_KEY"]?.toString() ?: ""
     }
 
     buildTypes {
@@ -74,7 +76,13 @@ dependencies {
 
     // Google SignIn
     implementation(libs.play.services.auth)
-    
+
+    // Google Maps Compose
+    implementation(libs.maps.compose)
+
+    // Google Maps SDK
+    implementation(libs.play.services.maps)
+
     // Credentials support
     implementation(libs.androidx.credentials)
     // optional - needed for credentials support from play services, for devices running
@@ -85,7 +93,6 @@ dependencies {
     // GSON
     implementation(libs.gson)
 
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -94,3 +101,4 @@ dependencies {
 
     // Debugging tools (optional)
 }
+

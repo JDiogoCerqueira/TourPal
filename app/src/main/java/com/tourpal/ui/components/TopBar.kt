@@ -18,6 +18,7 @@ fun TopBar() {
             .height(56.dp)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
+
     ) {
 
         // Logo

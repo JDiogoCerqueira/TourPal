@@ -59,7 +59,7 @@ fun RoleSelectionPage(navController: NavHostController) {
         )
         DefaultButton(
           onClick = {
-              showDialog.value = true
+              navController.navigate("searchToursPage")
           },
           s = "I'm a tourist",
           modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
@@ -80,7 +80,6 @@ fun RoleSelectionPage(navController: NavHostController) {
 @Preview
 @Composable
 fun RoleSelectionPagePreview() {
-    val navController = rememberNavController()
     TourPalTheme {
         RoleSelectionPage(navController = rememberNavController())
     }
