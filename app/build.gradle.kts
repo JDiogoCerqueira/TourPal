@@ -100,6 +100,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     debugImplementation(libs.androidx.ui.tooling)
 
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
     // Debugging tools (optional)
 }
 
