@@ -1,8 +1,8 @@
 package com.tourpal.services.auth.firestore
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.tourpal.services.auth.User
 import kotlinx.coroutines.tasks.await
+import com.tourpal.data.model.User
 
 class FirestoreService {
 
@@ -11,7 +11,7 @@ class FirestoreService {
     // Save user data to Firestore
     suspend fun saveUser(user: User) {
         try {
-            firestore.collection("users").document(user.id).set(user).await()
+            firestore.collection("user").document(user.id).set(user).await()
         } catch (e: Exception) {
             throw e
         }
@@ -20,7 +20,7 @@ class FirestoreService {
     // Get user data from Firestore
     suspend fun getUser(userId: String): User? {
         return try {
-            val document = firestore.collection("users").document(userId).get().await()
+            val document = firestore.collection("user").document(userId).get().await()
             if (document.exists()) {
                 val user = document.toObject(User::class.java)
                 user
@@ -35,7 +35,7 @@ class FirestoreService {
     // Update user data in Firestore
     suspend fun updateUser(userId: String, user: User) {
         try {
-            firestore.collection("users").document(userId).set(user).await()
+            firestore.collection("user").document(userId).set(user).await()
         } catch (e: Exception) {
             throw e
         }
