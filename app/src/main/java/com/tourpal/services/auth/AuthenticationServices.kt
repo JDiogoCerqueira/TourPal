@@ -96,7 +96,8 @@ class AuthenticationServicesImpl(
                     val userData = hashMapOf(
                         "id" to user.id,
                         "email" to user.email,
-                        "regDate" to com.google.firebase.Timestamp.now()
+                        "regDate" to com.google.firebase.Timestamp.now(),
+                        "name" to user.name
                     )
 
                     userRef.set(userData).await()
