@@ -57,9 +57,15 @@ fun NavGraph(
             )
         }
 
-        composable("tourResultsPage/{query}") { backStackEntry ->
+//        composable("tourResultsPage/{query}") { backStackEntry ->
+//            val query = backStackEntry.arguments?.getString("query") ?: ""
+//            TourResultsPage(navController, query)
+//        }
+
+        composable("TourPlansResultsPage/{query}") { backStackEntry ->
             val query = backStackEntry.arguments?.getString("query") ?: ""
-            TourResultsPage(navController, query)
+            TourPlansResultsPage(navController, query)
         }
+
     }
 }
