@@ -43,7 +43,7 @@ fun StartingPage(navController: NavController) {
                 if (isContentLoaded) {
                     Log.d("StartingPage", "navigating to login")
                     delay(1500)
-                    navController.navigate("login") {
+                    navController.navigate("loginPage") {
                         popUpTo(0)
                     }
                 } else {

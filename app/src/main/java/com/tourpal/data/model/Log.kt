@@ -10,7 +10,7 @@ data class WalkedPoint(
     val recordedAt: Timestamp? = null
 )
 
-data class Log(
+data class Logs(
     val createdAt: Timestamp? = null,
     val endedAt: Timestamp? = null,
     val guideId: String = "",
