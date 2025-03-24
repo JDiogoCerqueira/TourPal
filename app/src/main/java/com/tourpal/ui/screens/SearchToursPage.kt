@@ -64,7 +64,8 @@ fun SearchToursPage(navController: NavHostController) {
         if (query.isBlank()) return // Ignore empty searches
         viewModel.addRecentSearch(context, query)
         // Navigate to the tour results page with the search query
-        navController.navigate("tourResultsPage/$query")
+        //navController.navigate("tourResultsPage/$query")
+        navController.navigate("tourPlansResultsPage/$query")
     }
 
     Scaffold(

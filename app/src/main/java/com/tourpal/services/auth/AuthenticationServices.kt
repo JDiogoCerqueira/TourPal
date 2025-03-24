@@ -14,14 +14,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tourpal.R
 import kotlinx.coroutines.tasks.await
-
-// TODO: Properly define the User model
-data class User(
-    val id: String,
-    val email: String,
-    val name: String,
-)
-
+import com.tourpal.data.model.User
 
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
@@ -96,7 +89,8 @@ class AuthenticationServicesImpl(
                     val userData = hashMapOf(
                         "id" to user.id,
                         "email" to user.email,
-                        "regDate" to com.google.firebase.Timestamp.now()
+                        "regDate" to com.google.firebase.Timestamp.now(),
+                        "name" to user.name
                     )
 
                     userRef.set(userData).await()

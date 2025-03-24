@@ -7,8 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.tourpal.services.auth.AuthenticationServices
 import com.tourpal.services.auth.AuthenticationServiceProvider
 import com.tourpal.services.auth.Result
-import com.tourpal.services.auth.User
 import kotlinx.coroutines.launch
+import com.tourpal.data.model.User
+
 
 data class LoginState(
     val isLoading: Boolean = false,
