@@ -1,4 +1,4 @@
-package com.tourpal.services.auth.firestore
+package com.tourpal.services.firestore
 
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await

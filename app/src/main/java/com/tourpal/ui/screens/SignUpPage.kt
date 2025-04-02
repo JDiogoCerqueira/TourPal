@@ -1,104 +1,173 @@
 package com.tourpal.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.tourpal.R
-import com.tourpal.ui.theme.TourPalTheme
+import com.tourpal.services.auth.AuthenticationServiceProvider
 import com.tourpal.ui.components.BasicTextInput
+import com.tourpal.ui.components.DefaultButton
 import com.tourpal.ui.components.PasswordInput
+import com.tourpal.ui.components.TourPalLogo
+import com.tourpal.ui.viewmodels.SignupViewModel
+import com.tourpal.ui.viewmodels.SignupViewModelFactory
+import com.tourpal.services.auth.isSuccess
+import com.tourpal.services.auth.isFailure
+import com.tourpal.services.auth.exception
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpPage(navController: NavController) {
-    var username by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Initialize ViewModel
+    val authService = AuthenticationServiceProvider.provideAuthenticationService(context)
+    val signupViewModel: SignupViewModel = viewModel(factory = SignupViewModelFactory(authService))
+    val signupState = signupViewModel.signupResult
+
+    // State variables
+    var realName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var passwordMismatchError by remember { mutableStateOf(false) }
 
-    // Background with a gradient
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.tourpal_logo),
-                contentDescription = "TourPal Logo",
-                modifier = Modifier.size(120.dp) // Adjust size as needed
+        TourPalLogo(size = 300, text = false) // TourPal Logo
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Real Name Input
+        BasicTextInput(
+            placeholder = "Real Name",
+            value = realName,
+            onValueChange = { realName = it },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Email Input
+        BasicTextInput(
+            placeholder = "Email",
+            value = email,
+            onValueChange = { email = it },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Password Input
+        PasswordInput(
+            placeholder = "Password",
+            value = password,
+            onValueChange = {
+                password = it
+                passwordMismatchError = password != confirmPassword // Update error state
+            },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                autoCorrect = false
             )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
+        // Confirm Password Input
+        PasswordInput(
+            placeholder = "Confirm Password",
+            value = confirmPassword,
+            onValueChange = {
+                confirmPassword = it
+                passwordMismatchError = password != confirmPassword // Update error state
+            },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                autoCorrect = false
+            )
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
+        // Password Mismatch Error
+        if (passwordMismatchError && confirmPassword.isNotEmpty()) {
             Text(
-                text = "Create Account",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onPrimary // Use your theme's onPrimary color
+                text = "Passwords do not match",
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.Start).padding(start = 16.dp)
             )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+        // Sign Up Button
+        DefaultButton(
+            "Create Account",
+            {
+                if (password == confirmPassword) {
+                    scope.launch {
+                        signupViewModel.realName = realName
+                        signupViewModel.email = email
+                        signupViewModel.password = password
+                        signupViewModel.signUp()
+                    }
+                } else {
+                    passwordMismatchError = true
+                }
+            },
+            Modifier.fillMaxWidth(0.8f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
 
-            BasicTextInput("Username", username, { username = it })
-            Spacer(modifier = Modifier.height(16.dp))
-            BasicTextInput("Email", email, { email = it })
-            Spacer(modifier = Modifier.height(16.dp))
-            PasswordInput("Password", password, { password = it })
-            Spacer(modifier = Modifier.height(16.dp))
-            PasswordInput("Confirm Password", confirmPassword, { confirmPassword = it })
-            Spacer(modifier = Modifier.height(24.dp))
+        // Back to Login Button
+        TextButton(
+            onClick = { navController.navigate("loginPage") },
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Text("Already have an account? Log in", color = Color(0xFF0087FF))
+        }
+        Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = { /* Handle sign up */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text(text = "Sign Up", color = Color.White)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextButton(
-                onClick = { navController.navigate("loginPage") },
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                Text(text = "Already have an account? Log in", color = MaterialTheme.colorScheme.onPrimary)
+        // Loading Indicator
+        if (signupViewModel.isLoading) {
+            Popup(onDismissRequest = { /* Do nothing */ }) {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp),
+                    color = Color(0xFF0087FF)
+                )
             }
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun SignupPagePreview() {
-    val navController = rememberNavController()
-    TourPalTheme {
-        SignUpPage(navController = navController)
+        // Error Handling
+        signupState?.let { result ->
+            if (result.isFailure()) {
+                Text("Error: ${result.exception.message}", color = Color.Red, fontSize = 14.sp)
+            }
+        }
+
+        // Success Navigation
+        if (signupState?.isSuccess() == true) {
+            LaunchedEffect(Unit) {
+                navController.navigate("roleSelectionPage") {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }
+        }
     }
 }
