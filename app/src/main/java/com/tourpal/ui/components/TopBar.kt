@@ -11,7 +11,7 @@ import com.tourpal.ui.theme.*
 import com.tourpal.ui.components.TourPalLogo
 
 @Composable
-fun TopBar() {
+fun TopBar(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -25,7 +25,7 @@ fun TopBar() {
         TourPalLogo(size = 50, text=false)
         Spacer(modifier = Modifier.width(16.dp))
         Text(
-            text = "Explore Tour Plans",
+            text = text,
             color = White,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold
@@ -37,6 +37,6 @@ fun TopBar() {
 @Composable
 fun TopBarPreview(){
     TourPalTheme {
-        TopBar()
+        TopBar(text = "Explore Tour Plans")
     }
 }
