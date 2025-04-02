@@ -80,7 +80,7 @@ fun SearchToursPage(navController: NavHostController) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopBar()
+            TopBar(text = "Explore Tour Plans")
             Spacer(modifier = Modifier.height(16.dp))
 
             Column(
