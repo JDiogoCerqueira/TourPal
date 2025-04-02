@@ -17,7 +17,7 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] =
-            project.properties["GOOGLE_MAPS_API_KEY"]?.toString() ?: ""
+        project.properties["GOOGLE_MAPS_API_KEY"]?.toString() ?: ""
     }
 
     buildTypes {
@@ -74,6 +74,9 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
 
+    // Firebase Auth
+    implementation(libs.firebase.auth.ktx)
+
     // Google SignIn
     implementation(libs.play.services.auth)
 
@@ -100,11 +103,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     debugImplementation(libs.androidx.ui.tooling)
 
-    implementation("com.google.firebase:firebase-storage")
-    implementation("com.google.firebase:firebase-auth")
-    implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation(libs.firebase.storage)
+    implementation(libs.google.firebase.auth)
+    implementation(libs.coil.compose)
 
-    implementation("androidx.compose.material:material-icons-extended:<compose_version>")
+    implementation(libs.androidx.material.icons.extended)
 
 
 
