@@ -29,26 +29,19 @@ import coil.compose.AsyncImage
 @Composable
 fun ProfileScreen(navController: NavHostController,
                   authServices: AuthenticationServices,
-                  onSignOutSuccess: () -> Unit) {
+                  onSignOutSuccess: () -> Unit,
+                  getUser: suspend (String) -> User?
+                    ) {
     val coroutineScope = rememberCoroutineScope()
     var signOutStatus by remember { mutableStateOf<String?>(null) }
     val currentUser = FirebaseAuth.getInstance().currentUser // Get the current Firebase user
-
     var userData by remember { mutableStateOf<User?>(null) }  // Hold user data from Firestore
 
 
     // Fetch user data from Firestore
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let {
-            FirebaseFirestore.getInstance().collection("user")  // Use 'user' collection
-                .document(it)  // Fetch user document by UID
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        val user = documentSnapshot.toObject(User::class.java)
-                        userData = user
-                    }
-                }
+            userData = getUser(it)  // Use getUser to fetch user data asynchronously
         }
     }
 

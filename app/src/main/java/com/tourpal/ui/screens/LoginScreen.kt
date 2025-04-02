@@ -59,7 +59,13 @@ fun LoginPage(navController: NavController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // Email/Username and Password Inputs
-        BasicTextInput("User name or email", username, { username = it }, modifier = Modifier.fillMaxWidth(0.9f))
+        BasicTextInput(
+            "User name or email",
+            username,
+            { username = it },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            height = 150.dp
+        )
         Spacer(modifier = Modifier.height(16.dp))
         PasswordInput("Password", password, { password = it }, modifier = Modifier.fillMaxWidth(0.9f))
         Spacer(modifier = Modifier.height(24.dp))

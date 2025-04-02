@@ -25,13 +25,19 @@ import androidx.compose.runtime.remember
 import java.text.SimpleDateFormat
 import java.util.*
 import com.tourpal.ui.components.DatePickerModal
+import com.tourpal.services.firestore.FirestoreService
+
 
 @Composable
 fun UpdateProfilePage(navController: NavHostController) {
+
+
     var username by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var birthdate by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
+
+
 
     // Function to update the birthdate when the date is selected
     val onDateSelected: (Long?) -> Unit = { selectedDate ->
@@ -56,11 +62,11 @@ fun UpdateProfilePage(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Birthdate input as a clickable TextField
-        Text(
-            text = "Birthdate: ${if (birthdate.isNotEmpty()) birthdate else "Select a date"}",
-            modifier = Modifier
-                .clickable { showDatePicker = true }
-                .padding(16.dp)
+        DefaultButton(s = "Birthdate: ${if (birthdate.isNotEmpty()) birthdate else "Select a date"}",
+            onClick = { showDatePicker = true },
+            modifier = Modifier.padding(16.dp)
+
+
         )
 
         // Show Date Picker Modal when required

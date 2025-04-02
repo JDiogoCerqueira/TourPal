@@ -1,6 +1,7 @@
 package com.tourpal.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tourpal.R
 import com.tourpal.ui.theme.TourPalTheme
@@ -21,7 +23,8 @@ fun BasicTextInput(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    height: Dp = 56.dp
 ) {
     TextField(
         value = value,
@@ -30,7 +33,9 @@ fun BasicTextInput(
         maxLines = 1,
         shape = RoundedCornerShape(8.dp),
         keyboardOptions = keyboardOptions,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height),
     )
 }
 
@@ -77,7 +82,8 @@ fun BasicTextInputPreview() {
             placeholder = "Username",
             value = "",
             onValueChange = {},
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            height = 56.dp
         )
     }
 }
