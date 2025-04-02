@@ -9,12 +9,14 @@ import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tourpal.R
 import kotlinx.coroutines.tasks.await
 import com.tourpal.data.model.User
+import com.tourpal.services.firestore.FirestoreService
 
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
@@ -32,10 +34,8 @@ interface AuthenticationServices {
 class AuthenticationServicesImpl(
     private val firebaseAuth: FirebaseAuth,
     private val credentialManager: CredentialManager,
+    private val firestoreService: FirestoreService = FirestoreService()
 ) : AuthenticationServices {
-
-
-    // TODO: Additional flow for when a user is already registered with email and password and wants to sign in with Google and vice-versa
 
     override suspend fun signInWithGoogle(context: Context): Result<User> {
         return try {
@@ -144,25 +144,56 @@ class AuthenticationServicesImpl(
 
     override suspend fun signUpWithEmail(email: String, password: String): Result<User> {
         return try {
-            // Validate input
             if (email.isBlank() || password.isBlank()) {
                 return Result.Failure(Exception("Email and password cannot be empty"))
             }
 
-            // Sign up with Firebase
-            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val firebaseUser = authResult.user
-                ?: return Result.Failure(Exception("Firebase user not found"))
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null && currentUser.email == email) {
+                // User is already signed in (e.g., with Google) and wants to link email/password
+                val credential = EmailAuthProvider.getCredential(email, password)
+                currentUser.linkWithCredential(credential).await()
+                val user = User(
+                    id = currentUser.uid,
+                    email = currentUser.email ?: "",
+                    name = currentUser.displayName ?: "Unknown"
+                )
+                firestoreService.saveUser(user)
+                Result.Success(user)
+            } else {
+                // Normal signup flow
+                val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+                val firebaseUser = authResult.user
+                    ?: return Result.Failure(Exception("Firebase user not found"))
 
-            // Create a User object and save it
-            val user = User(
-                id = firebaseUser.uid,
-                email = firebaseUser.email ?: "",
-                name = firebaseUser.displayName ?: "Unknown"
-            )
-
-            Result.Success(user)
+                val user = User(
+                    id = firebaseUser.uid,
+                    email = firebaseUser.email ?: "",
+                    name = "Unknown"
+                )
+                firestoreService.saveUser(user)
+                Result.Success(user)
+            }
         } catch (e: Exception) {
+            if (e.message?.contains("email address is already in use") == true) {
+                // Email is already registered; attempt to link if signed in
+                val currentUser = firebaseAuth.currentUser
+                if (currentUser != null) {
+                    val credential = EmailAuthProvider.getCredential(email, password)
+                    try {
+                        currentUser.linkWithCredential(credential).await()
+                        val user = User(
+                            id = currentUser.uid,
+                            email = currentUser.email ?: "",
+                            name = currentUser.displayName ?: "Unknown"
+                        )
+                        firestoreService.saveUser(user)
+                        return Result.Success(user)
+                    } catch (linkException: Exception) {
+                        return Result.Failure(linkException)
+                    }
+                }
+            }
             Result.Failure(e)
         }
     }

@@ -1,15 +1,10 @@
 package com.tourpal.data.model
 
-import com.google.firebase.Timestamp
-
+import com.google.firebase.firestore.PropertyName
 
 data class User(
-    val id: String = "",
-    val birthdate: Timestamp? = null,
-    val description: String = "",
-    val email: String = "",
-    val nationality: String = "",
-    val regDate: Timestamp? = null,
-    val name: String = "",
-    val profilePhoto: String = ""
+    @PropertyName("id") val id: String = "",
+    @PropertyName("email") val email: String = "",
+    @PropertyName("name") val name: String = "Unknown",
+    @PropertyName("profilePhoto") val profilePhoto: String = ""
 )

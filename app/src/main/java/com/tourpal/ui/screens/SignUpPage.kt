@@ -121,6 +121,7 @@ fun SignUpPage(navController: NavController) {
             {
                 if (password == confirmPassword) {
                     scope.launch {
+                        signupViewModel.realName = realName
                         signupViewModel.email = email
                         signupViewModel.password = password
                         signupViewModel.signUp()
