@@ -3,6 +3,7 @@ package com.tourpal.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -21,12 +22,14 @@ import kotlinx.coroutines.launch
 import com.tourpal.data.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import coil.compose.AsyncImage
 
-
 @Composable
-fun ProfileScreen(authServices: AuthenticationServices, onSignOutSuccess: () -> Unit) {
+fun ProfileScreen(navController: NavHostController,
+                  authServices: AuthenticationServices,
+                  onSignOutSuccess: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var signOutStatus by remember { mutableStateOf<String?>(null) }
     val currentUser = FirebaseAuth.getInstance().currentUser // Get the current Firebase user
@@ -91,6 +94,15 @@ fun ProfileScreen(authServices: AuthenticationServices, onSignOutSuccess: () -> 
             },
             enabled = currentUser != null, // Disable button if no user is signed in
             s = "Sign Out"
+        )
+
+        // Update Profile Button
+        DefaultButton(
+            s = "Edit Profile",
+            onClick = {
+                navController.navigate("UpdateProfilePage")
+            },
+            modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
         )
 
         // Display sign out status

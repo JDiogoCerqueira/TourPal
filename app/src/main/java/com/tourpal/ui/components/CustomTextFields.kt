@@ -1,6 +1,7 @@
 package com.tourpal.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -20,6 +21,7 @@ import com.tourpal.R
 import com.tourpal.ui.theme.TourPalTheme
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun BasicTextInput(
@@ -27,6 +29,9 @@ fun BasicTextInput(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    height: Dp = 56.dp,
+
 ) {
     TextField(
         value = value,
@@ -34,7 +39,11 @@ fun BasicTextInput(
         placeholder = { Text(placeholder) },
         maxLines = 1,
         shape = RoundedCornerShape(8.dp),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height),
+        enabled = enabled
+
     )
 }
 

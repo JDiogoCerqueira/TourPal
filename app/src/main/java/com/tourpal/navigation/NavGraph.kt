@@ -20,6 +20,7 @@ fun NavGraph(
     val startDestination = if (FirebaseAuth.getInstance().currentUser != null)
         "roleSelectionPage"
     else
+        //"startingPage"
         "startingPage"
 
     NavHost(navController = navController, startDestination = startDestination) {
@@ -45,6 +46,7 @@ fun NavGraph(
 
         composable("profilePage") {
             ProfileScreen(
+                navController = navController,
                 authServices = authServices,
                 onSignOutSuccess = {
                     navController.navigate("loginPage") {
@@ -65,6 +67,10 @@ fun NavGraph(
         composable("TourPlansResultsPage/{query}") { backStackEntry ->
             val query = backStackEntry.arguments?.getString("query") ?: ""
             TourPlansResultsPage(navController, query)
+        }
+
+        composable("UpdateProfilePage") {
+            UpdateProfilePage(navController)
         }
 
     }
