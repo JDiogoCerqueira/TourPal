@@ -31,6 +31,10 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import coil.compose.AsyncImage
 import com.tourpal.R
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.ColorFilter
 
 @Composable
 fun ProfileScreen(navController: NavHostController,
@@ -68,66 +72,88 @@ fun ProfileScreen(navController: NavHostController,
             Text(text = "Description: ${user.description}")
             Text(text = "Birthdate: ${user.birthdate}")
 
-            // Display the user's profile photo (if available)
+// Display the user's profile photo
             if (user.profilePhoto.isNotEmpty()) {
-                AsyncImage(
-                    model = user.profilePhoto,  // Profile photo URL
-                    contentDescription = "Profile Photo",
+                Box(
                     modifier = Modifier
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
+                        .size(100.dp)
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    AsyncImage(
+                        model = user.profilePhoto,
+                        contentDescription = "Profile Photo",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             } else {
-                Image(
-                    painter = painterResource(R.drawable.profile_photo_placeholder),
-                    contentDescription = "Profile Photo Placeholder",
-                )
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.profile_photo_placeholder),
+                        contentDescription = "Profile Photo Placeholder",
+                        modifier = Modifier
+                            .size(60.dp),
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                }
             }
-        }
 
-        // Sign Out Button
-        DefaultButton(
-            onClick = {
-                coroutineScope.launch {
-                    signOutStatus = "Signing out..."
-                    when (val result = authServices.signOut()) {
-                        is com.tourpal.services.auth.Result.Failure -> {
-                            signOutStatus = "Sign out failed: ${result.exception.message}"
-                        }
-                        is com.tourpal.services.auth.Result.Success<*> -> {
-                            signOutStatus = "Signed out successfully"
-                            onSignOutSuccess() // Navigate to login screen or handle success
+            // Sign Out Button
+            DefaultButton(
+                onClick = {
+                    coroutineScope.launch {
+                        signOutStatus = "Signing out..."
+                        when (val result = authServices.signOut()) {
+                            is com.tourpal.services.auth.Result.Failure -> {
+                                signOutStatus = "Sign out failed: ${result.exception.message}"
+                            }
+
+                            is com.tourpal.services.auth.Result.Success<*> -> {
+                                signOutStatus = "Signed out successfully"
+                                onSignOutSuccess() // Navigate to login screen or handle success
+                            }
                         }
                     }
-                }
-            },
-            enabled = currentUser != null, // Disable button if no user is signed in
-            s = "Sign Out"
-        )
-
-        // Update Profile Button
-        DefaultButton(
-            s = "Edit Profile",
-            onClick = {
-                navController.navigate("UpdateProfilePage")
-            },
-            modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
-        )
-
-        DefaultButton(
-            s = "Back",
-            onClick = {
-                navController.navigate("roleSelectionPage")
-            },
-            modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
-        )
-
-        // Display sign out status
-        signOutStatus?.let {
-            Text(
-                text = it,
-                modifier = Modifier.padding(top = 8.dp)
+                },
+                enabled = currentUser != null, // Disable button if no user is signed in
+                s = "Sign Out"
             )
+
+            // Update Profile Button
+            DefaultButton(
+                s = "Edit Profile",
+                onClick = {
+                    navController.navigate("UpdateProfilePage")
+                },
+                modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+            )
+
+            DefaultButton(
+                s = "Back",
+                onClick = {
+                    navController.navigate("roleSelectionPage")
+                },
+                modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+            )
+
+            // Display sign out status
+            signOutStatus?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }

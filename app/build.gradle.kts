@@ -109,7 +109,9 @@ dependencies {
 
     implementation(libs.androidx.material.icons.extended)
 
-
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.31.3-beta")
+    implementation("androidx.activity:activity-compose:1.7.2")
 
     // Debugging tools (optional)
 }

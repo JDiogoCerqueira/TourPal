@@ -44,6 +44,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material3.MaterialTheme
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.LinearProgressIndicator
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import java.util.UUID
+
+
 
 @Composable
 fun UpdateProfilePage(
@@ -63,13 +73,45 @@ fun UpdateProfilePage(
     var profilePhoto by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    // Calculate the maximum allowed birthdate (18 years ago)
-    val maxBirthDate = remember {
-        Calendar.getInstance().apply {
-            add(Calendar.YEAR, -18)
-        }.timeInMillis
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var uploadProgress by remember { mutableStateOf<Float?>(null) }
+
+    // Storage reference
+    val storage = FirebaseStorage.getInstance()
+    val storageRef = storage.reference
+
+    // Function to upload image
+    fun uploadImageToFirebase(fileUri: Uri) {
+        val userId = currentUser?.uid ?: return
+        val imageRef: StorageReference = storageRef.child("profile_photos/$userId/${UUID.randomUUID()}")
+
+        uploadProgress = 0f
+        imageRef.putFile(fileUri)
+            .addOnProgressListener { taskSnapshot ->
+                uploadProgress = taskSnapshot.bytesTransferred.toFloat() /
+                        taskSnapshot.totalByteCount.toFloat()
+            }
+            .addOnSuccessListener { taskSnapshot ->
+                taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
+                    profilePhoto = uri.toString()
+                    uploadProgress = null
+                }
+            }
+            .addOnFailureListener { exception ->
+                errorMessage = "Image upload failed: ${exception.message}"
+                uploadProgress = null
+            }
     }
 
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                imageUri = it
+                uploadImageToFirebase(it)
+            }
+        }
+    )
 
     // Fetch user data when screen loads or when currentUser changes
     LaunchedEffect(currentUser?.uid) {
@@ -123,7 +165,6 @@ fun UpdateProfilePage(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Profile photo container with consistent styling
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
@@ -144,14 +185,27 @@ fun UpdateProfilePage(
                     Image(
                         painter = painterResource(R.drawable.profile_photo_placeholder),
                         contentDescription = "Profile Photo Placeholder",
+                        modifier = Modifier.size(60.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                }
+
+                // Upload progress indicator
+                uploadProgress?.let { progress ->
+                    LinearProgressIndicator(
+                        progress = progress,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
                     )
                 }
             }
 
             DefaultButton(
                 s = "Change Photo",
-                onClick = { /* TODO: Implement photo change */ },
-                modifier = Modifier.padding(start = 16.dp)
+                onClick = { imagePicker.launch("image/*") },
+                modifier = Modifier.padding(start = 16.dp),
+                enabled = uploadProgress == null
             )
         }
 
@@ -222,7 +276,6 @@ fun UpdateProfilePage(
                 }
             }
         }
-
 
 
         // OK button (action to save the profile, etc.)
