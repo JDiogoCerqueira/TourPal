@@ -17,21 +17,76 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.Date
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.SelectableDates
+
+import java.util.Calendar
+
 
 @Composable
 fun DatePickerModal(
     onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    maxDate: Long? = null,  // For absolute maximum date
+    minAge: Int = 18        // For age-based minimum date
 ) {
-    val datePickerState = rememberDatePickerState()
+    val currentDate = Calendar.getInstance()
+    val minBirthDate = Calendar.getInstance().apply {
+        add(Calendar.YEAR, -minAge)
+    }.timeInMillis
+
+    // Calculate the initial displayed date (18 years ago today)
+    val initialDisplayDate = Calendar.getInstance().apply {
+        add(Calendar.YEAR, -minAge)
+    }.timeInMillis
+
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = null,
+        initialDisplayedMonthMillis = initialDisplayDate, // This sets the initial view
+        yearRange = IntRange(1900, currentDate.get(Calendar.YEAR) - minAge),
+        initialDisplayMode = DisplayMode.Picker,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis <= minBirthDate
+            }
+            override fun isSelectableYear(year: Int): Boolean {
+                return year <= (currentDate.get(Calendar.YEAR) - minAge)
+            }
+        }
+    )
+
+    // Additional validation when OK is clicked
+//    fun validateAndSubmit() {
+//        datePickerState.selectedDateMillis?.let {
+//            if (maxDate != null && it > maxDate) {
+//                // This shouldn't happen because of selectableDates, but just in case
+//                return
+//            }
+//            onDateSelected(it)
+//        } ?: run {
+//            onDateSelected(null)
+//        }
+//        onDismiss()
+//    }
+    fun validateAndSubmit() {
+        datePickerState.selectedDateMillis?.let {
+            if (it > minBirthDate) return
+            onDateSelected(it)
+        } ?: run {
+            onDateSelected(null)
+        }
+        onDismiss()
+    }
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
+            TextButton(
+                onClick = { validateAndSubmit() },
+                enabled = datePickerState.selectedDateMillis?.let {
+                    maxDate?.let { max -> it <= max } ?: true
+                } ?: true
+            ) {
                 Text("OK")
             }
         },
@@ -41,7 +96,10 @@ fun DatePickerModal(
             }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            showModeToggle = false
+        )
     }
 }
 
@@ -57,7 +115,8 @@ fun DatePickerPreview() {
                 selectedDate = date
                 showDatePicker = false // Close the picker after date is selected
             },
-            onDismiss = { showDatePicker = false } // Close the picker if dismissed
+            onDismiss = { showDatePicker = false },
+            maxDate = Calendar.getInstance().timeInMillis // Close the picker if dismissed
         )
     }
 

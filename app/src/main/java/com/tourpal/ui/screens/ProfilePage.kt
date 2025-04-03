@@ -59,6 +59,8 @@ fun ProfileScreen(navController: NavHostController,
             Text(text = "Welcome, ${user.name}")
             Text(text = "Email: ${user.email}")
             Text(text = "Name: ${user.name}")
+            Text(text = "Description: ${user.description}")
+            Text(text = "Birthdate: ${user.birthdate}")
 
             // Display the user's profile photo (if available)
             if (user.profilePhoto.isNotEmpty()) {

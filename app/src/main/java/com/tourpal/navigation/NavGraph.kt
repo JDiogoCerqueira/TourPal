@@ -74,7 +74,15 @@ fun NavGraph(
         }
 
         composable("UpdateProfilePage") {
-            UpdateProfilePage(navController)
+            UpdateProfilePage(
+                navController = navController,
+                getUser = { userId ->
+                    firestoreService.getUser(userId)
+                },
+                updateUser = { userId, user ->
+                    firestoreService.updateUser(userId, user)
+                }
+            )
         }
 
     }

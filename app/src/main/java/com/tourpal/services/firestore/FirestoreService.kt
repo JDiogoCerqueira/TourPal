@@ -40,9 +40,15 @@ class FirestoreService {
     // Update user data in Firestore
     suspend fun updateUser(userId: String, user: User) {
         try {
-            firestore.collection("user").document(userId).set(user).await()
+            // Only update specific fields to avoid overwriting other data
+            val updates = mapOf(
+                "name" to user.name,
+                "description" to user.description,
+                "birthdate" to user.birthdate
+            )
+            firestore.collection("user").document(userId).update(updates).await()
         } catch (e: Exception) {
-            throw e
+            throw Exception("Failed to update user: ${e.message}", e)
         }
     }
 }
