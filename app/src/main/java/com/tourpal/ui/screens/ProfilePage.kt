@@ -1,11 +1,13 @@
 package com.tourpal.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,9 +24,13 @@ import kotlinx.coroutines.launch
 import com.tourpal.data.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import coil.compose.AsyncImage
+import com.tourpal.R
 
 @Composable
 fun ProfileScreen(navController: NavHostController,
@@ -67,7 +73,14 @@ fun ProfileScreen(navController: NavHostController,
                 AsyncImage(
                     model = user.profilePhoto,  // Profile photo URL
                     contentDescription = "Profile Photo",
-                    modifier = Modifier.size(100.dp)  // Correctly applying the size modifier
+                    modifier = Modifier
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.profile_photo_placeholder),
+                    contentDescription = "Profile Photo Placeholder",
                 )
             }
         }
@@ -97,6 +110,14 @@ fun ProfileScreen(navController: NavHostController,
             s = "Edit Profile",
             onClick = {
                 navController.navigate("UpdateProfilePage")
+            },
+            modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+        )
+
+        DefaultButton(
+            s = "Back",
+            onClick = {
+                navController.navigate("roleSelectionPage")
             },
             modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
         )
