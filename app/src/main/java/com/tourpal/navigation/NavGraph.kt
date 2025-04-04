@@ -84,8 +84,8 @@ fun NavGraph(
                 getUser = { userId ->
                     firestoreService.getUser(userId)
                 },
-                updateUser = { userId, user ->
-                    firestoreService.updateUser(userId, user)
+                updateUser = { user ->
+                    firestoreService.updateUser(user)
                 }
             )
         }

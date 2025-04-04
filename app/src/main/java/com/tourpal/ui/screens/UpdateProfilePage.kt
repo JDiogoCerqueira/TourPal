@@ -52,7 +52,7 @@ import com.tourpal.services.Storage.StorageService
 fun UpdateProfilePage(
     navController: NavHostController,
     getUser: suspend (String) -> User?,
-    updateUser: suspend (String, User) -> Unit
+    updateUser: suspend (User) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -243,7 +243,7 @@ fun UpdateProfilePage(
                         profilePhoto = profilePhoto
                     )
 
-                    updateUser(currentUser.uid, updatedUser)
+                    updateUser(updatedUser)
                     successMessage = "Profile updated successfully!"
                     navController.navigate("profilePage")
                 } catch (e: Exception) {
