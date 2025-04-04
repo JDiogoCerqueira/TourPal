@@ -77,7 +77,7 @@ fun UpdateProfilePage(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Description input
-        BasicTextInput("Description", description, { description = it }, height = 150.dp)
+        BasicTextInput("Description", description, { description = it })
         Spacer(modifier = Modifier.height(16.dp))
 
         // OK button (action to save the profile, etc.)

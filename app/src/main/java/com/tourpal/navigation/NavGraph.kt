@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.tourpal.services.auth.AuthenticationServiceProvider
 import com.tourpal.services.auth.AuthenticationServices
 import com.tourpal.ui.screens.*
+import com.tourpal.ui.components.MapComponent
 
 @Composable
 fun NavGraph(
@@ -57,6 +58,11 @@ fun NavGraph(
                     }
                 }
             )
+        }
+
+        // mapComponent
+        composable("mapPage") {
+            MapPage(navController = navController)
         }
 
 //        composable("tourResultsPage/{query}") { backStackEntry ->

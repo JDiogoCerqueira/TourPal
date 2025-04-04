@@ -36,7 +36,7 @@ fun ProfileScreen(navController: NavHostController,
 
     var userData by remember { mutableStateOf<User?>(null) }  // Hold user data from Firestore
 
-
+    // TODO: Fetch user data from Firestore
     // Fetch user data from Firestore
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let {

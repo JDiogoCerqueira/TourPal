@@ -45,7 +45,7 @@ val bottomNavItems = listOf(
         "History", R.drawable.outline_view_timeline_24, R.drawable.baseline_view_timeline_24, "historyPage"
     ),
     NavItem(
-        "Messages", R.drawable.outline_message_24, R.drawable.baseline_message_24, "messagesPage"
+        "Messages", R.drawable.outline_message_24, R.drawable.baseline_message_24, "mapPage"
     )
 )
 
