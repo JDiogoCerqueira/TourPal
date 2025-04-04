@@ -1,14 +1,15 @@
 package com.tourpal.data.model
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
 
 data class TourPlan(
-    val id: String = "",
-    val city: String = "",
-    val createdAt: Timestamp? = null,
-    val creatorId: String = "",
-    val description: String = "",
-    val title: String = "",
-    val destinations: List<Destination> = emptyList(),
-    val image: String = ""
+    @PropertyName("id") val id: String = "",
+    @PropertyName("city") val city: String = "",
+    @PropertyName("createdAt") val createdAt: Timestamp? = null,
+    @PropertyName("creatorId") val creatorId: String = "",
+    @PropertyName("description") val description: String = "",
+    @PropertyName("title") val title: String = "",
+    @PropertyName("destinations") val destinations: List<Destination> = emptyList(),
+    @PropertyName("image") val image: String = ""
 )

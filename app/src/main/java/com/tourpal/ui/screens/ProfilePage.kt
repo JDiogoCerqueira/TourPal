@@ -1,5 +1,6 @@
 package com.tourpal.ui.screens
 
+import TopBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,8 @@ import coil.compose.AsyncImage
 import com.tourpal.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.ColorFilter
 
@@ -47,7 +50,6 @@ fun ProfileScreen(navController: NavHostController,
     val currentUser = FirebaseAuth.getInstance().currentUser // Get the current Firebase user
     var userData by remember { mutableStateOf<User?>(null) }  // Hold user data from Firestore
 
-    // TODO: Fetch user data from Firestore
     // Fetch user data from Firestore
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let {
@@ -62,7 +64,9 @@ fun ProfileScreen(navController: NavHostController,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Profile Screen")
+        TopBar("My Profile")
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Display user data if available
         userData?.let { user ->

@@ -1,7 +1,6 @@
 package com.tourpal.ui.screens
 
 import TopBar
-//import android.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.tourpal.data.model.User
 import com.tourpal.ui.components.BasicTextInput
@@ -35,10 +33,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 import com.tourpal.R
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
@@ -47,7 +43,6 @@ import androidx.compose.material3.MaterialTheme
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -155,6 +150,7 @@ fun UpdateProfilePage(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        TopBar("Edit my Profile")
 
         Spacer(modifier = Modifier.height(16.dp))
 

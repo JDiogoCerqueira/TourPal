@@ -1,8 +1,10 @@
 package com.tourpal.data.model
 
+import com.google.firebase.firestore.PropertyName
+
 data class TourPlanRating(
-    val creatorId: String = "",
-    val ratingScore: Int = 0,
-    val reviewText: String = "",
-    val tourPlanId: String = ""
+    @PropertyName("creatorid") val creatorId: String = "",
+    @PropertyName("ratingscore") val ratingScore: Int = 0,
+    @PropertyName("reviewtext") val reviewText: String = "",
+    @PropertyName("tourplanid") val tourPlanId: String = ""
 )

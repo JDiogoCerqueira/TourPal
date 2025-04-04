@@ -1,8 +1,12 @@
 package com.tourpal.data.model
 
-data class Guide(
-    val name: String,
-    val rating: Float,
-    val reviews: Int,
-    val bio: String
-) // TODO: adjust for actual database data
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.PropertyName
+
+data class GuideAvailability(
+    @PropertyName("userid")  val userid: String = "",
+    @PropertyName("tourplanid") val tourplanid: String = "",
+    @PropertyName("availability") val availability: List<Timestamp> = emptyList(),
+    @PropertyName("ratingcount") val ratingcount: Int = 0,
+    @PropertyName("ratingmean") val ratingmean: Int = 0
+)
