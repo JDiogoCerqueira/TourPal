@@ -6,5 +6,7 @@ data class User(
     @PropertyName("id") val id: String = "",
     @PropertyName("email") val email: String = "",
     @PropertyName("name") val name: String = "Unknown",
-    @PropertyName("profilePhoto") val profilePhoto: String = ""
+    @PropertyName("profilePhoto") val profilePhoto: String = "",
+    @PropertyName("description") val description: String = "",
+    @PropertyName("birthdate") val birthdate: String = ""
 )

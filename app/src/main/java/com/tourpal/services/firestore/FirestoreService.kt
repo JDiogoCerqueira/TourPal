@@ -1,5 +1,6 @@
 package com.tourpal.services.firestore
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import com.tourpal.data.model.User
@@ -7,6 +8,7 @@ import com.tourpal.data.model.User
 class FirestoreService {
 
     private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()  // FirebaseAuth instance to get the current user
 
     // Save user data to Firestore
     suspend fun saveUser(user: User) {
@@ -18,7 +20,10 @@ class FirestoreService {
     }
 
     // Get user data from Firestore
-    suspend fun getUser(userId: String): User? {
+    suspend fun getUser(userId: String = auth.currentUser?.uid ?: ""): User? {
+
+        if (userId.isEmpty()) return null  // If userId is empty, return null
+
         return try {
             val document = firestore.collection("user").document(userId).get().await()
             if (document.exists()) {
@@ -35,9 +40,26 @@ class FirestoreService {
     // Update user data in Firestore
     suspend fun updateUser(userId: String, user: User) {
         try {
-            firestore.collection("user").document(userId).set(user).await()
+            val updates = mapOf(
+                "name" to user.name,
+                "description" to user.description,
+                "birthdate" to user.birthdate,
+                "profilePhoto" to user.profilePhoto
+            )
+            firestore.collection("user").document(userId).update(updates).await()
+        } catch (e: Exception) {
+            throw Exception("Failed to update user: ${e.message}", e)
+        }
+    }
+
+    suspend fun updateProfilePhoto(userId: String, photoUrl: String) {
+        try {
+            firestore.collection("user").document(userId)
+                .update("profilePhoto", photoUrl)
+                .await()
         } catch (e: Exception) {
             throw e
         }
     }
+
 }

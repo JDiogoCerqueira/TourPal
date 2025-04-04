@@ -67,7 +67,7 @@ fun RoleSelectionPage(navController: NavHostController) {
         modifier = Modifier.padding(bottom = 48.dp)
       )
       DefaultButton(
-        s = "I'm a tourist",
+        s = "I'm a traveller",
         onClick = {
           navController.navigate("searchToursPage")
         },

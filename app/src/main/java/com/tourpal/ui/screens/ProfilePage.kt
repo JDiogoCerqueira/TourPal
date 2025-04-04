@@ -1,11 +1,13 @@
 package com.tourpal.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,33 +24,34 @@ import kotlinx.coroutines.launch
 import com.tourpal.data.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import coil.compose.AsyncImage
+import com.tourpal.R
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.ColorFilter
 
 @Composable
 fun ProfileScreen(navController: NavHostController,
                   authServices: AuthenticationServices,
-                  onSignOutSuccess: () -> Unit) {
+                  onSignOutSuccess: () -> Unit,
+                  getUser: suspend (String) -> User?
+                    ) {
     val coroutineScope = rememberCoroutineScope()
     var signOutStatus by remember { mutableStateOf<String?>(null) }
     val currentUser = FirebaseAuth.getInstance().currentUser // Get the current Firebase user
-
     var userData by remember { mutableStateOf<User?>(null) }  // Hold user data from Firestore
 
     // TODO: Fetch user data from Firestore
     // Fetch user data from Firestore
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let {
-            FirebaseFirestore.getInstance().collection("user")  // Use 'user' collection
-                .document(it)  // Fetch user document by UID
-                .get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        val user = documentSnapshot.toObject(User::class.java)
-                        userData = user
-                    }
-                }
+            userData = getUser(it)  // Use getUser to fetch user data asynchronously
         }
     }
 
@@ -66,52 +69,91 @@ fun ProfileScreen(navController: NavHostController,
             Text(text = "Welcome, ${user.name}")
             Text(text = "Email: ${user.email}")
             Text(text = "Name: ${user.name}")
+            Text(text = "Description: ${user.description}")
+            Text(text = "Birthdate: ${user.birthdate}")
 
-            // Display the user's profile photo (if available)
+// Display the user's profile photo
             if (user.profilePhoto.isNotEmpty()) {
-                AsyncImage(
-                    model = user.profilePhoto,  // Profile photo URL
-                    contentDescription = "Profile Photo",
-                    modifier = Modifier.size(100.dp)  // Correctly applying the size modifier
-                )
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    AsyncImage(
+                        model = user.profilePhoto,
+                        contentDescription = "Profile Photo",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.profile_photo_placeholder),
+                        contentDescription = "Profile Photo Placeholder",
+                        modifier = Modifier
+                            .size(60.dp),
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                }
             }
-        }
 
-        // Sign Out Button
-        DefaultButton(
-            onClick = {
-                coroutineScope.launch {
-                    signOutStatus = "Signing out..."
-                    when (val result = authServices.signOut()) {
-                        is com.tourpal.services.auth.Result.Failure -> {
-                            signOutStatus = "Sign out failed: ${result.exception.message}"
-                        }
-                        is com.tourpal.services.auth.Result.Success<*> -> {
-                            signOutStatus = "Signed out successfully"
-                            onSignOutSuccess() // Navigate to login screen or handle success
+            // Sign Out Button
+            DefaultButton(
+                onClick = {
+                    coroutineScope.launch {
+                        signOutStatus = "Signing out..."
+                        when (val result = authServices.signOut()) {
+                            is com.tourpal.services.auth.Result.Failure -> {
+                                signOutStatus = "Sign out failed: ${result.exception.message}"
+                            }
+
+                            is com.tourpal.services.auth.Result.Success<*> -> {
+                                signOutStatus = "Signed out successfully"
+                                onSignOutSuccess() // Navigate to login screen or handle success
+                            }
                         }
                     }
-                }
-            },
-            enabled = currentUser != null, // Disable button if no user is signed in
-            s = "Sign Out"
-        )
-
-        // Update Profile Button
-        DefaultButton(
-            s = "Edit Profile",
-            onClick = {
-                navController.navigate("UpdateProfilePage")
-            },
-            modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
-        )
-
-        // Display sign out status
-        signOutStatus?.let {
-            Text(
-                text = it,
-                modifier = Modifier.padding(top = 8.dp)
+                },
+                enabled = currentUser != null, // Disable button if no user is signed in
+                s = "Sign Out"
             )
+
+            // Update Profile Button
+            DefaultButton(
+                s = "Edit Profile",
+                onClick = {
+                    navController.navigate("UpdateProfilePage")
+                },
+                modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+            )
+
+            DefaultButton(
+                s = "Back",
+                onClick = {
+                    navController.navigate("roleSelectionPage")
+                },
+                modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+            )
+
+            // Display sign out status
+            signOutStatus?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }
