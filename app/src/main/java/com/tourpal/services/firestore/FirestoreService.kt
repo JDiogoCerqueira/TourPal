@@ -52,14 +52,4 @@ class FirestoreService {
         }
     }
 
-    suspend fun updateProfilePhoto(userId: String, photoUrl: String) {
-        try {
-            firestore.collection("user").document(userId)
-                .update("profilePhoto", photoUrl)
-                .await()
-        } catch (e: Exception) {
-            throw e
-        }
-    }
-
 }

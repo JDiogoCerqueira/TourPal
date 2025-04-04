@@ -8,5 +8,5 @@ data class Guide(
     @PropertyName("tourplanid") val tourplanid: String = "",
     @PropertyName("availability") val availability: List<Timestamp> = emptyList(),
     @PropertyName("ratingcount") val ratingcount: Int = 0,
-    @PropertyName("ratingmean") val ratingmean: Int = 0
+    @PropertyName("ratingmean") val rating: Int = 0
 )

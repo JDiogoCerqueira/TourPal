@@ -44,9 +44,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.LinearProgressIndicator
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import java.util.UUID
+import com.tourpal.services.Storage.StorageService
 
 
 
@@ -71,42 +69,25 @@ fun UpdateProfilePage(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var uploadProgress by remember { mutableStateOf<Float?>(null) }
 
-    // Storage reference
-    val storage = FirebaseStorage.getInstance()
-    val storageRef = storage.reference
-
-    // Function to upload image
-    fun uploadImageToFirebase(fileUri: Uri) {
-        val userId = currentUser?.uid ?: return
-        val imageRef: StorageReference = storageRef.child("profile_photos/$userId/${UUID.randomUUID()}")
-
-        uploadProgress = 0f
-        imageRef.putFile(fileUri)
-            .addOnProgressListener { taskSnapshot ->
-                uploadProgress = taskSnapshot.bytesTransferred.toFloat() /
-                        taskSnapshot.totalByteCount.toFloat()
-            }
-            .addOnSuccessListener { taskSnapshot ->
-                taskSnapshot.storage.downloadUrl.addOnSuccessListener { uri ->
-                    profilePhoto = uri.toString()
-                    uploadProgress = null
-                }
-            }
-            .addOnFailureListener { exception ->
-                errorMessage = "Image upload failed: ${exception.message}"
-                uploadProgress = null
-            }
-    }
-
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
             uri?.let {
                 imageUri = it
-                uploadImageToFirebase(it)
+                coroutineScope.launch {
+                    uploadProgress = 0.2f
+                    val downloadUrl = StorageService.uploadProfileImage(it)
+                    if (downloadUrl != null) {
+                        profilePhoto = downloadUrl
+                    } else {
+                        errorMessage = "Image upload failed"
+                    }
+                    uploadProgress = null
+                }
             }
         }
     )
+
 
     // Fetch user data when screen loads or when currentUser changes
     LaunchedEffect(currentUser?.uid) {
