@@ -3,7 +3,7 @@ package com.tourpal.data.model
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 
-data class GuideAvailability(
+data class Guide(
     @PropertyName("userid")  val userid: String = "",
     @PropertyName("tourplanid") val tourplanid: String = "",
     @PropertyName("availability") val availability: List<Timestamp> = emptyList(),
