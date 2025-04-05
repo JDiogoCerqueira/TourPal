@@ -15,9 +15,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -27,10 +27,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
 import com.tourpal.R
 import kotlinx.coroutines.launch
@@ -49,6 +46,7 @@ fun MapComponent(
     var lastUserInteractionTime by remember { mutableStateOf(0L) }
     var isMapLoaded by remember { mutableStateOf(false) }
     var arrowIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var isDarkMode by remember { mutableStateOf(false) } // Track light/dark mode
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(40.6318, -8.6576), 15f) // Aveiro University
@@ -56,7 +54,7 @@ fun MapComponent(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        val drawable = context.getDrawable(R.drawable.ic_arrow)
+        val drawable = ResourcesCompat.getDrawable(context.resources, R.drawable.ic_arrow, null)
         arrowIcon = drawable?.toBitmap(64, 64)?.let { BitmapDescriptorFactory.fromBitmap(it) }
     }
 
@@ -122,7 +120,7 @@ fun MapComponent(
         }
     }
 
-    // Sensor handling
+    // Sensor handling for orientation (accelerometer and magnetometer)
     val sensorListener = remember {
         object : SensorEventListener {
             private val accelerometerReading = FloatArray(3)
@@ -177,12 +175,40 @@ fun MapComponent(
         }
     }
 
+    // Light sensor handling
+    val lightSensorListener = remember {
+        object : SensorEventListener {
+            private var lastUpdateTime = 0L
+            private val darkThreshold = 10f // Lux threshold for dark mode
+            private val lightThreshold = 30f // Lux threshold to go back to light mode
+
+            override fun onSensorChanged(event: SensorEvent) {
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastUpdateTime < 1000) return // Update every 1 second
+                lastUpdateTime = currentTime
+
+                if (event.sensor.type == Sensor.TYPE_LIGHT) {
+                    val lux = event.values[0] // Light level in lux
+                    Log.d("MapComponent", "Light level: $lux lux")
+                    isDarkMode = if(isDarkMode){
+                        lux < lightThreshold
+                    }else{
+                        lux < darkThreshold
+                    } // Switch to dark mode if light is low
+                }
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+    }
+
     // Lifecycle handling for sensors
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, sensorManager) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
+                    // Register orientation sensors
                     sensorManager.registerListener(
                         sensorListener,
                         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -193,8 +219,17 @@ fun MapComponent(
                         sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
                         SensorManager.SENSOR_DELAY_UI
                     )
+                    // Register light sensor
+                    sensorManager.registerListener(
+                        lightSensorListener,
+                        sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT),
+                        SensorManager.SENSOR_DELAY_NORMAL
+                    )
                 }
-                Lifecycle.Event.ON_PAUSE -> sensorManager.unregisterListener(sensorListener)
+                Lifecycle.Event.ON_PAUSE -> {
+                    sensorManager.unregisterListener(sensorListener)
+                    sensorManager.unregisterListener(lightSensorListener)
+                }
                 else -> {}
             }
         }
@@ -202,6 +237,7 @@ fun MapComponent(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             sensorManager.unregisterListener(sensorListener)
+            sensorManager.unregisterListener(lightSensorListener)
         }
     }
 
@@ -210,12 +246,16 @@ fun MapComponent(
         modifier = modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(
-            isMyLocationEnabled = locationPermissionGranted,
-            mapType = MapType.NORMAL
-
+            isMyLocationEnabled = false,
+            mapType = MapType.NORMAL,
+            mapStyleOptions = if (isDarkMode) {
+                MapStyleOptions.loadRawResourceStyle(context, R.raw.dark_map_style)
+            } else {
+                null // Default light style
+            }
         ),
         uiSettings = MapUiSettings(
-            myLocationButtonEnabled = true,
+            myLocationButtonEnabled = locationPermissionGranted,
             zoomControlsEnabled = true,
             compassEnabled = true,
             rotationGesturesEnabled = true,
@@ -254,7 +294,6 @@ fun MapComponent(
                 rotation = bearing,
                 flat = true,
             )
-
         }
     }
 
