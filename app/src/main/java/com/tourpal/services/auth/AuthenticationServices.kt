@@ -16,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.tourpal.R
 import kotlinx.coroutines.tasks.await
 import com.tourpal.data.model.User
-import com.tourpal.services.firestore.FirestoreService
+import com.tourpal.data.model.repository.UserRepository
 
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
@@ -34,7 +34,8 @@ interface AuthenticationServices {
 class AuthenticationServicesImpl(
     private val firebaseAuth: FirebaseAuth,
     private val credentialManager: CredentialManager,
-    private val firestoreService: FirestoreService = FirestoreService()
+    private val userRepository: UserRepository // Add UserRepository as a dependency
+
 ) : AuthenticationServices {
 
     override suspend fun signInWithGoogle(context: Context): Result<User> {
@@ -158,7 +159,7 @@ class AuthenticationServicesImpl(
                     email = currentUser.email ?: "",
                     name = currentUser.displayName ?: "Unknown"
                 )
-                firestoreService.saveUser(user)
+                userRepository.saveUser(user)
                 Result.Success(user)
             } else {
                 // Normal signup flow
@@ -171,7 +172,7 @@ class AuthenticationServicesImpl(
                     email = firebaseUser.email ?: "",
                     name = "Unknown"
                 )
-                firestoreService.saveUser(user)
+                userRepository.saveUser(user)
                 Result.Success(user)
             }
         } catch (e: Exception) {
@@ -187,7 +188,7 @@ class AuthenticationServicesImpl(
                             email = currentUser.email ?: "",
                             name = currentUser.displayName ?: "Unknown"
                         )
-                        firestoreService.saveUser(user)
+                        userRepository.saveUser(user)
                         return Result.Success(user)
                     } catch (linkException: Exception) {
                         return Result.Failure(linkException)

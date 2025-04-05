@@ -23,7 +23,6 @@ import com.tourpal.services.auth.AuthenticationServices
 import com.tourpal.ui.components.DefaultButton
 import kotlinx.coroutines.launch
 import com.tourpal.data.model.User
-import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -38,12 +37,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.ColorFilter
+import com.tourpal.data.model.repository.UserRepository
 
 @Composable
 fun ProfileScreen(navController: NavHostController,
                   authServices: AuthenticationServices,
                   onSignOutSuccess: () -> Unit,
-                  getUser: suspend (String) -> User?
+                  userRepository: UserRepository
                     ) {
     val coroutineScope = rememberCoroutineScope()
     var signOutStatus by remember { mutableStateOf<String?>(null) }
@@ -53,7 +53,7 @@ fun ProfileScreen(navController: NavHostController,
     // Fetch user data from Firestore
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let {
-            userData = getUser(it)  // Use getUser to fetch user data asynchronously
+            userData = userRepository.getUser(it)
         }
     }
 

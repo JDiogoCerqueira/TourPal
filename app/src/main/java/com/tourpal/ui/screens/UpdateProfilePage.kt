@@ -44,6 +44,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.LinearProgressIndicator
+import com.tourpal.data.model.repository.UserRepository
 import com.tourpal.services.Storage.StorageService
 
 
@@ -51,8 +52,7 @@ import com.tourpal.services.Storage.StorageService
 @Composable
 fun UpdateProfilePage(
     navController: NavHostController,
-    getUser: suspend (String) -> User?,
-    updateUser: suspend (User) -> Unit
+    userRepository: UserRepository
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -94,7 +94,7 @@ fun UpdateProfilePage(
         currentUser?.uid?.let { userId ->
             isLoading = true
             try {
-                val user = getUser(userId)
+                val user = userRepository.getUser(userId)
                 user?.let {
                     username = it.name
                     description = it.description
@@ -243,7 +243,7 @@ fun UpdateProfilePage(
                         profilePhoto = profilePhoto
                     )
 
-                    updateUser(updatedUser)
+                    userRepository.updateUser(updatedUser)
                     successMessage = "Profile updated successfully!"
                     navController.navigate("profilePage")
                 } catch (e: Exception) {

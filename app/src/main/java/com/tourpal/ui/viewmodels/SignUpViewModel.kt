@@ -6,13 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.tourpal.data.model.User
+import com.tourpal.data.model.repository.UserRepository
 import com.tourpal.services.auth.AuthenticationServices
 import com.tourpal.services.auth.Result
-import com.tourpal.services.firestore.FirestoreService
 
 class SignupViewModel(
     private val authenticationServices: AuthenticationServices,
-    private val firestoreService: FirestoreService = FirestoreService()
+    private val userRepository: UserRepository // Inject UserRepository
 ) : ViewModel() {
     var realName by mutableStateOf("")
     var email by mutableStateOf("")
@@ -27,7 +27,7 @@ class SignupViewModel(
             Log.d("SignupViewModel", "Signup result: $result")
             if (result is Result.Success) {
                 val user = result.data.copy(name = realName) // Update name
-                firestoreService.saveUser(user) // Save updated user with real name
+                userRepository.saveUser(user) // Use UserRepository to save the updated user
             }
         }
         isLoading = false

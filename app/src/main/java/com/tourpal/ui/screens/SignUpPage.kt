@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.tourpal.data.model.repository.UserRepository
 import com.tourpal.services.auth.AuthenticationServiceProvider
 import com.tourpal.ui.components.BasicTextInput
 import com.tourpal.ui.components.DefaultButton
@@ -24,6 +25,7 @@ import com.tourpal.ui.viewmodels.SignupViewModelFactory
 import com.tourpal.services.auth.isSuccess
 import com.tourpal.services.auth.isFailure
 import com.tourpal.services.auth.exception
+import com.tourpal.services.firestore.FirestoreService
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,8 +35,11 @@ fun SignUpPage(navController: NavController) {
 
     // Initialize ViewModel
     val authService = AuthenticationServiceProvider.provideAuthenticationService(context)
-    val signupViewModel: SignupViewModel = viewModel(factory = SignupViewModelFactory(authService))
+    val userRepository = UserRepository(FirestoreService()) // Initialize UserRepository
+    val signupViewModel: SignupViewModel = viewModel(factory = SignupViewModelFactory(authService, userRepository))
+    //val signupViewModel: SignupViewModel = viewModel(factory = SignupViewModelFactory(authService))
     val signupState = signupViewModel.signupResult
+
 
     // State variables
     var realName by remember { mutableStateOf("") }

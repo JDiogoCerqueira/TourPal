@@ -35,12 +35,6 @@ object TourPlanRepository {
             // Get the DocumentReference for the tourplan
             val tourPlanRef = firestore.collection("tourplan").document(tourPlanId)
 
-
-            Log.d("Debug", "tourPlanId: $tourPlanId")
-            Log.d("Debug", "tourPlanRef: $tourPlanRef")
-            Log.d("Debug", "tourPlanRef.path: ${tourPlanRef.path}")
-
-
             // Query Firestore to get all ratings for this tour plan
             val snapshot = firestore.collection("tourplanrating")
                 .whereEqualTo("tourplanid", tourPlanRef)
