@@ -220,7 +220,23 @@ class FirestoreService {
             emptyList() // Return an empty list if any error occurs
         }
     }
+    // Get the average rating for a tourplan by tourplanId
+    suspend fun getAverageTourPlanRating(tourPlanId: String): Double {
+        return try {
+            val snapshot = firestore.collection("tourplanrating")
+                .whereEqualTo("tourplanid", tourPlanId)
+                .get()
+                .await()
 
+            val ratings = snapshot.documents.mapNotNull {
+                it.toObject(TourPlanRating::class.java)?.ratingScore
+            }
+
+            if (ratings.isEmpty()) 0.0 else ratings.average()
+        } catch (e: Exception) {
+            0.0
+        }
+    }
 
 
     ////GUIDE////

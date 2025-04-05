@@ -47,4 +47,13 @@ class TourPlanRatingRepository(private val firestoreService: FirestoreService) {
             emit(Result.failure(e))
         }
     }
+
+    suspend fun getAverageRating(tourPlanId: String): Result<Double> {
+        return try {
+            val average = firestoreService.getAverageTourPlanRating(tourPlanId)
+            Result.success(average)
+        } catch (e: Exception) {
+            Result.failure(Exception("Failed to get average rating: ${e.message}"))
+        }
+    }
 }

@@ -19,9 +19,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.tourpal.data.model.repository.TourPlanRatingRepository
 import com.tourpal.ui.components.TourPlanCard
 import com.tourpal.data.model.repository.TourPlanRepository
 import com.tourpal.services.firestore.FirestoreService
+import com.tourpal.ui.viewmodels.TourPlanRatingViewModel
 import com.tourpal.ui.viewmodels.TourPlanViewModel
 
 
@@ -30,10 +32,18 @@ fun TourPlansResultsPage(navController: NavHostController, query: String) {
     // Local state for the search text (pre-filled with the query)
     var searchText by remember { mutableStateOf(query) }
 
-    val viewModel: TourPlanViewModel = viewModel(
+    val tourplanViewModel: TourPlanViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return TourPlanViewModel(TourPlanRepository(FirestoreService())) as T
+            }
+        }
+    )
+
+    val ratingViewModel: TourPlanRatingViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return TourPlanRatingViewModel(TourPlanRatingRepository(FirestoreService())) as T
             }
         }
     )
@@ -46,10 +56,10 @@ fun TourPlansResultsPage(navController: NavHostController, query: String) {
     }
 
     LaunchedEffect(processedCity) {
-        viewModel.loadTourPlansByCity(processedCity)
+        tourplanViewModel.loadTourPlansByCity(processedCity)
     }
-    val tourPlansResult by viewModel.tourPlansState.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val tourPlansResult by tourplanViewModel.tourPlansState.collectAsState()
+    val errorMessage by tourplanViewModel.errorMessage.collectAsState()
 
     Column(
         modifier = Modifier
@@ -100,6 +110,7 @@ fun TourPlansResultsPage(navController: NavHostController, query: String) {
                         items(tourPlans) { tourPlan ->
                             TourPlanCard(
                                 tourPlan = tourPlan,
+                                ratingViewModel = ratingViewModel,
                                 onClick = {
                                     navController.navigate("tour_details/${tourPlan.id}")
                                 }
