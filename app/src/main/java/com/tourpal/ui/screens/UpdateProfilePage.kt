@@ -176,10 +176,10 @@ fun UpdateProfilePage(
                 // Upload progress indicator
                 uploadProgress?.let { progress ->
                     LinearProgressIndicator(
-                        progress = progress,
+                        progress = { progress },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
+                            .align(Alignment.BottomCenter),
                     )
                 }
             }
@@ -201,7 +201,9 @@ fun UpdateProfilePage(
         // Birthdate input as a clickable TextField
         DefaultButton(s = "Birthdate: ${if (birthdate.isNotEmpty()) birthdate else "Select a date"}",
             onClick = { showDatePicker = true },
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .height(48.dp)
 
 
         )
@@ -267,16 +269,24 @@ fun UpdateProfilePage(
         DefaultButton(
             s = "Update Profile",
             onClick = { updateProfile() },
-            enabled = !isLoading
+            enabled = !isLoading,
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .height(48.dp)
         )
 
+        // Spacer
+        Spacer(modifier = Modifier.height(16.dp))
 
         DefaultButton(
             s = "Back",
             onClick = {
                 navController.navigate("profilePage")
-            },
-            modifier = Modifier.fillMaxWidth(0.7f).padding(horizontal = 32.dp)
+            }
+            ,
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .height(48.dp)
         )
     }
 }
