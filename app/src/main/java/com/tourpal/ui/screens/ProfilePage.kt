@@ -36,24 +36,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.ColorFilter
 import com.tourpal.data.model.repository.UserRepository
+import com.tourpal.ui.viewmodels.UserViewModel
 
 @Composable
 fun ProfileScreen(navController: NavHostController,
                   authServices: AuthenticationServices,
                   onSignOutSuccess: () -> Unit,
-                  userRepository: UserRepository
+                  userViewModel: UserViewModel
                     ) {
     val coroutineScope = rememberCoroutineScope()
     var signOutStatus by remember { mutableStateOf<String?>(null) }
     val currentUser = FirebaseAuth.getInstance().currentUser // Get the current Firebase user
-    var userData by remember { mutableStateOf<User?>(null) }  // Hold user data from Firestore
 
-    // Fetch user data from Firestore
+    // Collect the user data from the ViewModel
+    val userData by userViewModel.user.collectAsState()
+    val error by userViewModel.error.collectAsState()
+
+    // Fetch user data if current user is not null
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let {
-            userData = userRepository.getUser(it)
+            userViewModel.loadUser(it)
         }
     }
 
@@ -67,6 +72,11 @@ fun ProfileScreen(navController: NavHostController,
         TopBar("My Profile")
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Display error message if there's an error
+        error?.let {
+            Text(text = "Error: $it", color = MaterialTheme.colorScheme.error)
+        }
 
         // Display user data if available
         userData?.let { user ->

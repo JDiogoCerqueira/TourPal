@@ -11,6 +11,7 @@ import com.tourpal.services.auth.AuthenticationServices
 import com.tourpal.ui.screens.*
 import com.tourpal.services.firestore.FirestoreService
 import com.tourpal.data.model.repository.UserRepository
+import com.tourpal.ui.viewmodels.UserViewModel
 
 @Composable
 fun NavGraph(
@@ -22,6 +23,7 @@ fun NavGraph(
 ) {
 
     val userRepository = UserRepository(firestoreService)
+    val userViewModel = UserViewModel(userRepository)
 
     val startDestination = if (FirebaseAuth.getInstance().currentUser != null)
         "roleSelectionPage"
@@ -62,7 +64,7 @@ fun NavGraph(
                         }
                     }
                 },
-                userRepository = userRepository
+                userViewModel = userViewModel
             )
         }
 
@@ -84,7 +86,7 @@ fun NavGraph(
         composable("UpdateProfilePage") {
             UpdateProfilePage(
                 navController = navController,
-                userRepository = userRepository
+                userViewModel = userViewModel
             )
         }
 

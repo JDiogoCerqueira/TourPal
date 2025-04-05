@@ -40,7 +40,7 @@ class TourPlanRepository(private val firestoreService: FirestoreService) {
     }
 
     // Get tourplans by city
-    suspend fun getTourPlansByCity(city: String): Flow<Result<List<TourPlan>>> = flow {
+        suspend fun getTourPlansByCity(city: String): Flow<Result<List<TourPlan>>> = flow {
         try {
             val tourPlans = firestoreService.getTourPlansByCity(city)
             emit(Result.success(tourPlans)) // Emit success with list of tourplans

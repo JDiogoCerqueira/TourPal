@@ -44,15 +44,19 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.collectAsState
 import com.tourpal.data.model.repository.UserRepository
 import com.tourpal.services.Storage.StorageService
+import com.tourpal.ui.viewmodels.UserViewModel
 
 
 
 @Composable
 fun UpdateProfilePage(
     navController: NavHostController,
-    userRepository: UserRepository
+//    userRepository: UserRepository,
+    userViewModel: UserViewModel
+
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -68,6 +72,9 @@ fun UpdateProfilePage(
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var uploadProgress by remember { mutableStateOf<Float?>(null) }
+
+    // Observe user data from the ViewModel
+    val userState by userViewModel.user.collectAsState()
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -90,17 +97,30 @@ fun UpdateProfilePage(
 
 
     // Fetch user data when screen loads or when currentUser changes
+//    LaunchedEffect(currentUser?.uid) {
+//        currentUser?.uid?.let { userId ->
+//            isLoading = true
+//            try {
+//                val user = userRepository.getUser(userId)
+//                user?.let {
+//                    username = it.name
+//                    description = it.description
+//                    birthdate = it.birthdate
+//                    profilePhoto = it.profilePhoto // Load profile photo URL
+//                }
+//            } catch (e: Exception) {
+//                errorMessage = "Failed to load user data: ${e.message}"
+//            } finally {
+//                isLoading = false
+//            }
+//        }
+//    }
+
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let { userId ->
             isLoading = true
             try {
-                val user = userRepository.getUser(userId)
-                user?.let {
-                    username = it.name
-                    description = it.description
-                    birthdate = it.birthdate
-                    profilePhoto = it.profilePhoto // Load profile photo URL
-                }
+                userViewModel.loadUser(userId)  // Fetch user data using ViewModel
             } catch (e: Exception) {
                 errorMessage = "Failed to load user data: ${e.message}"
             } finally {
@@ -109,6 +129,15 @@ fun UpdateProfilePage(
         }
     }
 
+    // When the user is loaded, populate the fields
+    LaunchedEffect(userState) {
+        userState?.let {
+            username = it.name
+            description = it.description
+            birthdate = it.birthdate
+            profilePhoto = it.profilePhoto // Load profile photo URL
+        }
+    }
 
     // Function to update the birthdate when the date is selected
     val onDateSelected: (Long?) -> Unit = { selectedDate ->
@@ -243,7 +272,9 @@ fun UpdateProfilePage(
                         profilePhoto = profilePhoto
                     )
 
-                    userRepository.updateUser(updatedUser)
+                    //userRepository.updateUser(updatedUser)
+                    userViewModel.updateUser(updatedUser)
+
                     successMessage = "Profile updated successfully!"
                     navController.navigate("profilePage")
                 } catch (e: Exception) {
