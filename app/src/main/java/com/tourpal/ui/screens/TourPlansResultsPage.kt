@@ -13,17 +13,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.tourpal.data.model.TourPlan
-//import com.tourpal.data.model.TourPlanRepository
 import com.tourpal.ui.components.TourPlanCard
-import com.tourpal.ui.theme.TourPalTheme
 import com.tourpal.data.model.repository.TourPlanRepository
 import com.tourpal.services.firestore.FirestoreService
+import com.tourpal.ui.viewmodels.TourPlanViewModel
 
 
 @Composable
@@ -31,9 +30,14 @@ fun TourPlansResultsPage(navController: NavHostController, query: String) {
     // Local state for the search text (pre-filled with the query)
     var searchText by remember { mutableStateOf(query) }
 
-    val tourPlanRepository = remember {
-        TourPlanRepository(FirestoreService())
-    }
+    val viewModel: TourPlanViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return TourPlanViewModel(TourPlanRepository(FirestoreService())) as T
+            }
+        }
+    )
+
     // Process input: trim + lowercase
     val processedCity by remember {
         derivedStateOf {
@@ -41,23 +45,11 @@ fun TourPlansResultsPage(navController: NavHostController, query: String) {
         }
     }
 
-    var tourPlans by remember { mutableStateOf(emptyList<TourPlan>()) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
     LaunchedEffect(processedCity) {
-        tourPlanRepository.getTourPlansByCity(processedCity).collect { result ->
-            result.fold(
-                onSuccess = { list ->
-                    tourPlans = list
-                    errorMessage = null
-                },
-                onFailure = { exception ->
-                    errorMessage = exception.message
-                    tourPlans = emptyList()
-                }
-            )
-        }
+        viewModel.loadTourPlansByCity(processedCity)
     }
+    val tourPlansResult by viewModel.tourPlansState.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     Column(
         modifier = Modifier
@@ -84,31 +76,44 @@ fun TourPlansResultsPage(navController: NavHostController, query: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display a message if no tours are found
-        if (tourPlans.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "No tours found", fontSize = 18.sp)
+        when {
+            errorMessage != null -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = errorMessage!!,
+                        fontSize = 18.sp,
+                        color = Color.Red
+                    )
+                }
             }
-        } else {
-            // Use a LazyColumn to display a list of TourPlanCard composables
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(tourPlans) { tourPlan ->
-                    TourPlanCard(tourPlan = tourPlan, onClick = {
-                        // Navigate to a tour details page using the tour plan's id.
-                        navController.navigate("tour_details/${tourPlan.id}")
-                    })
+            tourPlansResult.isSuccess -> {
+                val tourPlans = tourPlansResult.getOrNull() ?: emptyList()
+                if (tourPlans.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "No tours found", fontSize = 18.sp)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(tourPlans) { tourPlan ->
+                            TourPlanCard(
+                                tourPlan = tourPlan,
+                                onClick = {
+                                    navController.navigate("tour_details/${tourPlan.id}")
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            else -> {
+                // Loading state or initial state
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "Loading...", fontSize = 18.sp)
                 }
             }
         }
-    }
-}
-@Preview
-@Composable
-fun TourPlansResultsPagePreview() {
-    TourPalTheme {
-        TourPlansResultsPage(navController = rememberNavController(), query = "Aveiro")
     }
 }

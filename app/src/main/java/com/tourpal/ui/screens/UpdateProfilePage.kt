@@ -54,9 +54,7 @@ import com.tourpal.ui.viewmodels.UserViewModel
 @Composable
 fun UpdateProfilePage(
     navController: NavHostController,
-//    userRepository: UserRepository,
     userViewModel: UserViewModel
-
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -94,27 +92,6 @@ fun UpdateProfilePage(
             }
         }
     )
-
-
-    // Fetch user data when screen loads or when currentUser changes
-//    LaunchedEffect(currentUser?.uid) {
-//        currentUser?.uid?.let { userId ->
-//            isLoading = true
-//            try {
-//                val user = userRepository.getUser(userId)
-//                user?.let {
-//                    username = it.name
-//                    description = it.description
-//                    birthdate = it.birthdate
-//                    profilePhoto = it.profilePhoto // Load profile photo URL
-//                }
-//            } catch (e: Exception) {
-//                errorMessage = "Failed to load user data: ${e.message}"
-//            } finally {
-//                isLoading = false
-//            }
-//        }
-//    }
 
     LaunchedEffect(currentUser?.uid) {
         currentUser?.uid?.let { userId ->
