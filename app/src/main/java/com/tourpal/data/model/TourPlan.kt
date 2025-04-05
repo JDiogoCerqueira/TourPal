@@ -12,4 +12,8 @@ data class TourPlan(
     @PropertyName("title") val title: String = "",
     @PropertyName("destinations") val destinations: List<Destination> = emptyList(),
     @PropertyName("image") val image: String = ""
-)
+){
+    // Normalized version of the city (trim + lowercase)
+    val normalizedCity: String
+        get() = city.trim().lowercase()
+}

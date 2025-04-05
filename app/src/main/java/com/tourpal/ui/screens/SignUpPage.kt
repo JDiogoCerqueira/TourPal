@@ -74,7 +74,7 @@ fun SignUpPage(navController: NavController) {
             onValueChange = { email = it },
             modifier = Modifier.fillMaxWidth(0.9f),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            height = 150.dp
+            //height = 150.dp
         )
         Spacer(modifier = Modifier.height(16.dp))
 

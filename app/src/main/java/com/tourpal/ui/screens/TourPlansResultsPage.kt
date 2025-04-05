@@ -18,18 +18,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.tourpal.data.model.TourPlanRepository
+import com.tourpal.data.model.TourPlan
+//import com.tourpal.data.model.TourPlanRepository
 import com.tourpal.ui.components.TourPlanCard
 import com.tourpal.ui.theme.TourPalTheme
+import com.tourpal.data.model.repository.TourPlanRepository
+import com.tourpal.services.firestore.FirestoreService
+
 
 @Composable
 fun TourPlansResultsPage(navController: NavHostController, query: String) {
     // Local state for the search text (pre-filled with the query)
     var searchText by remember { mutableStateOf(query) }
 
-    // Collect the tour plans from Firestore filtered by the searchText (city)
-    // (Ensure that your TourPlan model includes an "id" field or that you handle the document id separately.)
-    val tourPlans by TourPlanRepository.getTourPlansByCity(searchText).collectAsState(initial = emptyList())
+    val tourPlanRepository = remember {
+        TourPlanRepository(FirestoreService())
+    }
+    // Process input: trim + lowercase
+    val processedCity by remember {
+        derivedStateOf {
+            searchText.trim().lowercase()
+        }
+    }
+
+    var tourPlans by remember { mutableStateOf(emptyList<TourPlan>()) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(processedCity) {
+        tourPlanRepository.getTourPlansByCity(processedCity).collect { result ->
+            result.fold(
+                onSuccess = { list ->
+                    tourPlans = list
+                    errorMessage = null
+                },
+                onFailure = { exception ->
+                    errorMessage = exception.message
+                    tourPlans = emptyList()
+                }
+            )
+        }
+    }
 
     Column(
         modifier = Modifier

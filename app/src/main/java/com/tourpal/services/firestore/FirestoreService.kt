@@ -28,25 +28,6 @@ class FirestoreService {
         }
     }
 
-
-//     Get user data from Firestore
-//    suspend fun getUser(userId: String = auth.currentUser?.uid ?: ""): User? {
-//
-//        if (userId.isEmpty()) return null  // If userId is empty, return null
-//
-//        return try {
-//            val document = firestore.collection("user").document(userId).get().await()
-//            if (document.exists()) {
-//                val user = document.toObject(User::class.java)
-//                user
-//            } else {
-//                null
-//            }
-//        } catch (e: Exception) {
-//            null
-//        }
-//    }
-
     // Get user data from Firestore
     suspend fun getUser(userId: String): User? {
         return try {
