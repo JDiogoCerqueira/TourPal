@@ -4,8 +4,8 @@ import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.GeoPoint
 
 data class Destination(
-    @PropertyName("coordinates") val coordinates: GeoPoint? = null,
-    @PropertyName("description") val description: String = "",
-    @PropertyName("name") val name: String = "",
-    @PropertyName("imageURL") val imageURL: String = ""
+    @PropertyName("coordinates") var coordinates: GeoPoint? = null,
+    @PropertyName("description") var description: String = "",
+    @PropertyName("name") var name: String = "",
+    @PropertyName("imageurl") var imageURL: String = ""
 )

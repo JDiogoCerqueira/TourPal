@@ -1,7 +1,10 @@
 package com.tourpal.services.firestore
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
+import com.tourpal.data.model.Destination
 import kotlinx.coroutines.tasks.await
 import com.tourpal.data.model.User
 import  com.tourpal.data.model.TourPlan
@@ -12,7 +15,7 @@ import com.tourpal.data.model.Guide
 
 class FirestoreService {
 
-    private val firestore = FirebaseFirestore.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
 
@@ -72,17 +75,21 @@ class FirestoreService {
     }
 
     // Get tourplan data from Firestore by ID
-    suspend fun getTourPlan(tourplanId: String): TourPlan? {
+    suspend fun getTourPlan(tourplanId: String): Pair<TourPlan?, String?> {
         return try {
-            val document = firestore.collection("tourplan").document(tourplanId).get().await()
-            if (document.exists()) {
-                document.toObject(TourPlan::class.java)
+            val document = firestore.collection("tourplan").whereEqualTo("id", tourplanId).get().await().documents.firstOrNull()
+            if (document?.exists() == true) {
+                val tourPlan = document.toObject(TourPlan::class.java)
+                Log.d("FirestoreService", "Fetched TourPlan for ID $tourplanId: $tourPlan")
+                Pair(tourPlan, document.id)
             } else {
-                null
+                Log.d("FirestoreService", "No TourPlan found for ID $tourplanId")
+                Pair(null, null)
             }
         } catch (e: Exception) {
-            null
-            }
+            Log.e("FirestoreService", "Error fetching TourPlan for ID $tourplanId: ${e.message}", e)
+            Pair(null, null)
+        }
     }
 
     // Update tourplan data in Firestore
@@ -91,9 +98,9 @@ class FirestoreService {
             val updates = mapOf(
                 "title" to tourplan.title,
                 "description" to tourplan.description,
-                "destinations" to tourplan.destinations,
+                "destination" to tourplan.destinations,
                 "image" to tourplan.image,
-                "city" to tourplan.city
+                "city" to tourplan.normalizedCity
             )
             firestore.collection("tourplan").document(tourplan.id).update(updates).await()
         } catch (e: Exception) {
@@ -117,7 +124,6 @@ class FirestoreService {
             emptyList() // Return an empty list if any error occurs
         }
     }
-
 
 
     ////GUIDERATING////
@@ -220,6 +226,7 @@ class FirestoreService {
             emptyList() // Return an empty list if any error occurs
         }
     }
+
     // Get the average rating for a tourplan by tourplanId
     suspend fun getAverageTourPlanRating(tourPlanId: String): Double {
         return try {
@@ -281,6 +288,22 @@ class FirestoreService {
 
     }
 
-
-
+    // Get all destinations from a tourplan: a sub-collection called destinations like the Destination class structure
+    suspend fun getDestinationsFromTourPlan(tourPlanDocumentId: String): List<Destination> {
+        return try {
+            val snapshot = firestore.collection("tourplan")
+                .document(tourPlanDocumentId)
+                .collection("destination")
+                .get()
+                .await()
+            val destinations = snapshot.documents.mapNotNull { document ->
+                document.toObject(Destination::class.java)
+            }
+            Log.d("FirestoreService", "Fetched destinations for tourPlanDocumentId $tourPlanDocumentId: $destinations")
+            destinations
+        } catch (e: Exception) {
+            Log.e("FirestoreService", "Error fetching destinations: ${e.message}", e)
+            emptyList()
+        }
+    }
 }

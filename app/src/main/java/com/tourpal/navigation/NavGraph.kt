@@ -28,7 +28,6 @@ fun NavGraph(
     val startDestination = if (FirebaseAuth.getInstance().currentUser != null)
         "roleSelectionPage"
     else
-        //"startingPage"
         "startingPage"
 
     NavHost(navController = navController, startDestination = startDestination) {
@@ -58,7 +57,6 @@ fun NavGraph(
                 authServices = authServices,
                 onSignOutSuccess = {
                     navController.navigate("loginPage") {
-                        // Clear back stack to prevent returning to profile
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
                         }
@@ -68,20 +66,21 @@ fun NavGraph(
             )
         }
 
-        // mapComponent
         composable("mapPage") {
             MapPage(navController = navController)
         }
 
-//        composable("tourResultsPage/{query}") { backStackEntry ->
-//            val query = backStackEntry.arguments?.getString("query") ?: ""
-//            TourResultsPage(navController, query)
-//        }
-
-        composable("TourPlansResultsPage/{query}") { backStackEntry ->
+        composable("tourPlansResultsPage/{query}") { backStackEntry ->
             val query = backStackEntry.arguments?.getString("query") ?: ""
-            TourPlansResultsPage(navController, query)
+            TourResultsPage(navController, query)
         }
+
+        composable("tour_details/{tourPlanId}") { backStackEntry ->
+            val tourPlanId = backStackEntry.arguments?.getString("tourPlanId") ?: ""
+            TourDetailsPage(navController = navController, tourPlanId = tourPlanId)
+        }
+
+
 
         composable("UpdateProfilePage") {
             UpdateProfilePage(
@@ -89,6 +88,5 @@ fun NavGraph(
                 userViewModel = userViewModel
             )
         }
-
     }
 }

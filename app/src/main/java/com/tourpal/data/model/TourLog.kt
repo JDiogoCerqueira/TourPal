@@ -1,34 +1,26 @@
-package com.tourpal.data.model;
+package com.tourpal.data.model
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.GeoPoint
 
-import java.util.List;
-import java.util.Map;
+data class TourLog(
+    val createdAt: Timestamp? = null,
+    val endedAt: Timestamp? = null,
+    val guideId: String? = null,
+    val notes: String? = null,
+    val tourPlanId: String? = null,
+    val userId: String? = null,
+    val logs: List<Annotation>? = null,
+    val walkedPath: List<WalkedPoint>? = null
+) {
+    data class WalkedPoint(
+        val point: GeoPoint? = null,
+        val recordedAt: Timestamp? = null
+    )
 
-// Log of each tour
-public class TourLog {
-
-    // Each walked point stores both a coordinate and the time it was recorded.
-    public static class WalkedPoint {
-        public GeoPoint point;
-        public Timestamp recordedAt;
-    }
-
-    // Register notes, images and geolocations for each user log
-    public static class Annotation {
-        public String logId;
-        public String notes;
-        public List<Map<String, GeoPoint>> images;
-    }
-
-    private Timestamp createdAt;
-    private Timestamp endedAt;
-    private String guideId;
-    private String notes;
-    private String tourPlanId;
-    private String userId;
-    private List<Annotation> logs;
-    private List<WalkedPoint> walkedPath;
+    data class Annotation(
+        val logId: String? = null,
+        val notes: String? = null,
+        val images: List<Map<String, GeoPoint>>? = null
+    )
 }
-

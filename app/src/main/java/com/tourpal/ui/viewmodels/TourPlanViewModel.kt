@@ -35,6 +35,7 @@ class TourPlanViewModel (
                 .onEach { result ->
                     result.fold(
                         onSuccess = { tourPlan ->
+                            val (tourPlan, _) = tourPlan
                             _tourPlanState.value = Result.success(tourPlan)
                         },
                         onFailure = { exception ->
