@@ -89,34 +89,34 @@ private val firestoreService: FirestoreService
         viewModelScope.launch {
             Log.d("TourDetailsViewModel", "Starting getAllDestinations for tourPlanId $tourPlanId")
             if (FirebaseAuth.getInstance().currentUser == null) {
-            Log.w("TourDetailsViewModel", "User not authenticated in getAllDestinations")
-            _state.value = _state.value.copy(
-                isLoading = false,
-                error = "User not authenticated"
-            )
-            return@launch
-            }
-            try {
-            val documentId = _state.value.tourPlanDocumentId ?: run {
-                Log.e("TourDetailsViewModel", "Tour plan document ID not found for tourPlanId $tourPlanId")
+                Log.w("TourDetailsViewModel", "User not authenticated in getAllDestinations")
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = "User not authenticated"
+                )
                 return@launch
             }
-            Log.d("TourDetailsViewModel", "Fetching destinations for documentId $documentId")
-            val destinations = firestoreService.getDestinationsFromTourPlan(documentId)
-            Log.d("TourDetailsViewModel", "Fetched destinations for tourPlanId $tourPlanId (documentId $documentId): $destinations")
+            try {
+                val documentId = _state.value.tourPlanDocumentId ?: run {
+                    Log.e("TourDetailsViewModel", "Tour plan document ID not found for tourPlanId $tourPlanId")
+                    return@launch
+                }
+                Log.d("TourDetailsViewModel", "Fetching destinations for documentId $documentId")
+                val destinations = firestoreService.getDestinationsFromTourPlan(documentId)
+                Log.d("TourDetailsViewModel", "Fetched destinations for tourPlanId $tourPlanId (documentId $documentId): $destinations")
 
-            _state.value = _state.value.copy(
-                tourPlan = _state.value.tourPlan?.copy(
-                destinations = destinations
-                ),
-                isLoading = false
-            )
+                _state.value = _state.value.copy(
+                    tourPlan = _state.value.tourPlan?.copy(
+                        destinations = destinations
+                    ),
+                    isLoading = false
+                )
             } catch (e: Exception) {
-            Log.e("TourDetailsViewModel", "Error fetching destinations: ${e.message}", e)
-            _state.value = _state.value.copy(
-                isLoading = false,
-                error = "Failed to fetch destinations: ${e.message}"
-            )
+                Log.e("TourDetailsViewModel", "Error fetching destinations: ${e.message}", e)
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = "Failed to fetch destinations: ${e.message}"
+                )
             }
         }
     }

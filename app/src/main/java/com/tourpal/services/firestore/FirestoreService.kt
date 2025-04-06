@@ -142,6 +142,28 @@ class FirestoreService {
         }
     }
 
+    suspend fun getDestinationsFromTourPlan(tourPlanDocumentId: String): List<Destination> {
+        return try {
+            val snapshot = firestore.collection("tourplan")
+                .document(tourPlanDocumentId)
+                .collection("destination")
+                .get()
+                .await()
+            val destinations = snapshot.documents.mapNotNull { document ->
+                val dest = document.toObject(Destination::class.java)?.apply {
+                    coordinates = document.getGeoPoint("coordinates")
+                }
+                Log.d("FirestoreService", "Raw data for ${document.id}: ${document.data}")
+                Log.d("FirestoreService", "Deserialized: $dest")
+                dest
+            }
+            Log.d("FirestoreService", "Fetched destinations for tourPlanDocumentId $tourPlanDocumentId: $destinations")
+            destinations
+        } catch (e: Exception) {
+            Log.e("FirestoreService", "Error fetching destinations: ${e.message}", e)
+            emptyList()
+        }
+    }
 
 
     ////GUIDERATING////
@@ -306,24 +328,5 @@ class FirestoreService {
             throw Exception("Failed to update guide: ${e.message}", e)
         }
 
-    }
-
-    // Get all destinations from a tourplan: a sub-collection called destinations like the Destination class structure
-    suspend fun getDestinationsFromTourPlan(tourPlanDocumentId: String): List<Destination> {
-        return try {
-            val snapshot = firestore.collection("tourplan")
-                .document(tourPlanDocumentId)
-                .collection("destination")
-                .get()
-                .await()
-            val destinations = snapshot.documents.mapNotNull { document ->
-                document.toObject(Destination::class.java)
-            }
-            Log.d("FirestoreService", "Fetched destinations for tourPlanDocumentId $tourPlanDocumentId: $destinations")
-            destinations
-        } catch (e: Exception) {
-            Log.e("FirestoreService", "Error fetching destinations: ${e.message}", e)
-            emptyList()
-        }
     }
 }

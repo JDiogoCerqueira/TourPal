@@ -66,8 +66,9 @@ fun NavGraph(
             )
         }
 
-        composable("mapPage") {
-            MapPage(navController = navController)
+        composable("mapPage/{tourPlanId}") { backStackEntry ->
+            val tourPlanId = backStackEntry.arguments?.getString("tourPlanId") ?: ""
+            MapPage(navController = navController, tourPlanId = tourPlanId)
         }
 
         composable("tourPlansResultsPage/{query}") { backStackEntry ->

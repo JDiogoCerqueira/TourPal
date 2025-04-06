@@ -85,6 +85,9 @@ dependencies {
 
     // Google Maps SDK
     implementation(libs.play.services.maps)
+    implementation(libs.google.maps.services)
+    implementation(libs.slf4j.simple)
+    implementation (libs.android.maps.utils)
 
     // Credentials support
     implementation(libs.androidx.credentials)
@@ -110,9 +113,9 @@ dependencies {
 
     implementation(libs.androidx.material.icons.extended)
 
-    implementation("com.google.firebase:firebase-storage-ktx:20.2.1")
+    implementation(libs.firebase.storage.ktx)
     implementation("com.google.accompanist:accompanist-permissions:0.31.3-beta")
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation(libs.androidx.activity.compose.v172)
 
     // Debugging tools (optional)
 }

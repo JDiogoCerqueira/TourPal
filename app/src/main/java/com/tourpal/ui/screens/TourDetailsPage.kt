@@ -180,7 +180,7 @@ fun TourDetailsPage(navController: NavHostController, tourPlanId: String) {
                                 
                                 // View on map button
                                 OutlinedButton(
-                                    onClick = { navController.navigate("mapPage") },
+                                    onClick = { navController.navigate("mapPage/$tourPlanId") }, // Pass tourPlanId
                                     modifier = Modifier.height(36.dp),
                                     contentPadding = PaddingValues(horizontal = 12.dp)
                                 ) {
