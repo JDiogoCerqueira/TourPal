@@ -125,6 +125,24 @@ class FirestoreService {
         }
     }
 
+    suspend fun getDestinationsCountByTourPlanId(tourPlanId: String): Int {
+        return try {
+            // Fetch the destinations subcollection for the specified TourPlan
+            val snapshot = firestore.collection("tourplan")
+                .document(tourPlanId)
+                .collection("destination") // Subcollection name
+                .get()
+                .await()
+
+            // Return the count of documents in the destination subcollection
+            snapshot.size()
+        } catch (e: Exception) {
+            Log.e("FirestoreService", "Error fetching destinations count: ${e.message}", e)
+            0 // Return 0 if there was an error
+        }
+    }
+
+
 
     ////GUIDERATING////
 
@@ -230,16 +248,18 @@ class FirestoreService {
     // Get the average rating for a tourplan by tourplanId
     suspend fun getAverageTourPlanRating(tourPlanId: String): Double {
         return try {
+            val tourplanPath = "tourplan/$tourPlanId"
+
             val snapshot = firestore.collection("tourplanrating")
-                .whereEqualTo("tourplanid", tourPlanId)
+                .whereEqualTo("tourplanid_str", tourplanPath)
                 .get()
                 .await()
 
             val ratings = snapshot.documents.mapNotNull {
-                it.toObject(TourPlanRating::class.java)?.ratingScore
+                it.getLong("ratingscore")?.toInt()
             }
 
-            if (ratings.isEmpty()) 0.0 else ratings.average()
+            return ratings.takeIf { it.isNotEmpty() }?.average() ?: 0.0
         } catch (e: Exception) {
             0.0
         }

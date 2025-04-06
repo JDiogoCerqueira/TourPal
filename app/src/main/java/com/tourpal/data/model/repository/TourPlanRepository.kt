@@ -1,7 +1,6 @@
 package com.tourpal.data.model.repository
 
 import android.util.Log
-import com.google.firebase.firestore.GeoPoint
 import com.tourpal.data.model.Destination
 import com.tourpal.data.model.TourPlan
 import com.tourpal.services.firestore.FirestoreService
@@ -64,5 +63,18 @@ class TourPlanRepository(private val firestoreService: FirestoreService) {
             emit(Result.failure(e)) // Emit failure with exception if an error occurs
         }
     }
+
+
+    // Get the number of destinations in a tourplan
+    fun getDestinationsCount(tourPlanId: String): Flow<Result<Int>> = flow {
+        try {
+            // Call FirestoreService to fetch the count of destinations
+            val count = firestoreService.getDestinationsCountByTourPlanId(tourPlanId)
+            emit(Result.success(count)) // Emit success with the count of destinations
+        } catch (e: Exception) {
+            emit(Result.failure(e)) // Emit failure with exception if an error occurs
+        }
+    }
+
 
 }
