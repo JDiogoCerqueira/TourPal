@@ -1,7 +1,5 @@
 package com.tourpal.ui.components
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,10 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.tourpal.ui.theme.*
 import com.tourpal.ui.theme.TourPalTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 data class NavItem(val label: String, val icon: Int, val selectedIcon: Int, val route: String)
 
@@ -54,6 +53,21 @@ val bottomNavItems = listOf(
 fun NavBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val showDialog = remember { mutableStateOf(false) }
+    // Display the "Still working on it" AlertDialog when needed
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Still working on it") },
+            confirmButton = {
+                Button(onClick = { showDialog.value = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
 
     NavigationBar(
         containerColor = Color.White,
@@ -93,12 +107,18 @@ fun NavBar(navController: NavController) {
                 label = { }, // Empty label since we're including it in the icon Column
                 selected = currentRoute == item.route,
                 onClick = {
+                    if (item.label == "History" || item.label == "Messages") {
+                        showDialog.value = true
+                    } else{
                     navController.navigate(item.route) {
                         popUpTo(navController.graph.startDestinationId) {
                             saveState = true
                         }
                         launchSingleTop = true
                         restoreState = true
+                    }
+
+
                     }
                 }
             )
