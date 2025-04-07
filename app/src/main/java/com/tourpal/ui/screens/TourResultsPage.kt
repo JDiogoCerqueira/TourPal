@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -26,7 +25,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.tourpal.data.model.repository.TourPlanRatingRepository
 import com.tourpal.data.model.repository.TourPlanRepository
 import com.tourpal.services.firestore.FirestoreService
-import com.tourpal.ui.theme.TourPalTheme
 import com.tourpal.ui.viewmodels.TourResultsViewModel
 import com.tourpal.ui.viewmodels.TourResultsViewModelFactory
 import TopBar
@@ -181,12 +179,6 @@ fun TourPlanCard(
                         color = Color.Black
                     )
                 )
-                Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = "Favorite Icon",
-                    modifier = Modifier.size(24.dp),
-                    tint = Color.Gray
-                )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -210,17 +202,6 @@ fun TourPlanCard(
                     modifier = Modifier.padding(start = 4.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Number of Destinations
-            Text(
-                text = "${tourPlan.destinations.size} destinations",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            )
         }
     }
 }

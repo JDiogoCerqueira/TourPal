@@ -16,13 +16,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -139,40 +137,6 @@ fun SearchToursPage(navController: NavHostController) {
                     ),
                     shape = RoundedCornerShape(8.dp)
                 )
-
-                // Nearby Chip
-                Surface(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .clickable {
-                            navController.navigate("nearby_tours")
-                        }
-                        .background(Color.Transparent),
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color(0xFFE0E0E0),
-                    shadowElevation = 2.dp
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Location Icon",
-                            modifier = Modifier.size(16.dp),
-                            tint = Color.Gray
-                        )
-                        Text(
-                            text = "Nearby",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontSize = 14.sp,
-                                color = Color.Black
-                            ),
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
-                }
 
                 // Recently Searched Section
                 Spacer(modifier = Modifier.height(24.dp))
