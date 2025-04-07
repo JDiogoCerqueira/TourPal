@@ -3,6 +3,10 @@ package com.tourpal.ui.components
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,12 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.maps.DirectionsApi
@@ -38,7 +47,11 @@ fun MapComponent(
     destinations: List<Destination> = emptyList(),
 ) {
     val context = LocalContext.current
+    val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     val coroutineScope = rememberCoroutineScope()
+    var arrowIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
+    var bearing by remember { mutableStateOf(0f) }
+    var locationPermissionGranted by remember { mutableStateOf(false) }
     var isMapLoaded by remember { mutableStateOf(false) }
     var customMarker by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var routeData by remember { mutableStateOf<List<RouteSegment>>(emptyList()) }
@@ -51,6 +64,62 @@ fun MapComponent(
     // Default camera position
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(40.6318, -8.6576), 15f)
+    }
+
+    // Load arrow icon
+    LaunchedEffect(Unit) {
+        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_arrow)
+        arrowIcon = drawable?.toBitmap(64, 64)?.let { BitmapDescriptorFactory.fromBitmap(it) }
+    }
+
+    // Sensor handling
+    val sensorListener = remember {
+        object : SensorEventListener {
+            private val accelerometerReading = FloatArray(3)
+            private val magnetometerReading = FloatArray(3)
+            private val rotationMatrix = FloatArray(9)
+            private val orientationAngles = FloatArray(3)
+
+            override fun onSensorChanged(event: SensorEvent?) {
+                when (event?.sensor?.type) {
+                    Sensor.TYPE_ACCELEROMETER -> System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
+                    Sensor.TYPE_MAGNETIC_FIELD -> System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
+                }
+                SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
+                SensorManager.getOrientation(rotationMatrix, orientationAngles)
+                bearing = Math.toDegrees(orientationAngles[0].toDouble()).toFloat()
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+    }
+
+    // Lifecycle handling for sensors
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, sensorManager) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    sensorManager.registerListener(
+                        sensorListener,
+                        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                        SensorManager.SENSOR_DELAY_UI
+                    )
+                    sensorManager.registerListener(
+                        sensorListener,
+                        sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                        SensorManager.SENSOR_DELAY_UI
+                    )
+                }
+                Lifecycle.Event.ON_PAUSE -> sensorManager.unregisterListener(sensorListener)
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            sensorManager.unregisterListener(sensorListener)
+        }
     }
 
     // Calculate walking routes between destinations
@@ -84,8 +153,12 @@ fun MapComponent(
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
-        properties = MapProperties(mapType = MapType.NORMAL),
+        properties = MapProperties(
+            isMyLocationEnabled = locationPermissionGranted,
+            mapType = MapType.NORMAL
+        ),
         uiSettings = MapUiSettings(
+            myLocationButtonEnabled = true,
             zoomControlsEnabled = true,
             compassEnabled = true,
             rotationGesturesEnabled = true,
@@ -160,10 +233,19 @@ fun MapComponent(
                 }
             }
         }
+
+        if (arrowIcon != null) {
+            Marker(
+                state = rememberMarkerState(position = cameraPositionState.position.target),
+                icon = arrowIcon,
+                rotation = bearing,
+                flat = true,
+            )
+        }
     }
 }
 
-// Data class to store route segment information
+// Data class to store route segment information    
 data class RouteSegment(
     val path: List<LatLng>,
     val duration: String,
