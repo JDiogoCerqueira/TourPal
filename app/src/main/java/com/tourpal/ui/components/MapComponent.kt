@@ -50,11 +50,21 @@ fun MapComponent(
     val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     val coroutineScope = rememberCoroutineScope()
     var arrowIcon by remember { mutableStateOf<BitmapDescriptor?>(null) }
-    var bearing by remember { mutableStateOf(0f) }
+    var bearing by remember { mutableFloatStateOf(0f) }
     var locationPermissionGranted by remember { mutableStateOf(false) }
     var isMapLoaded by remember { mutableStateOf(false) }
     var customMarker by remember { mutableStateOf<BitmapDescriptor?>(null) }
     var routeData by remember { mutableStateOf<List<RouteSegment>>(emptyList()) }
+    
+    // Add state for dark mode
+    var isDarkMode by remember { mutableStateOf(false) }
+    // Light threshold - adjust as needed based on testing
+    val LIGHT_THRESHOLD = 30f
+    
+    // Load dark map style
+    val darkMapStyle by remember {
+        mutableStateOf(MapStyleOptions.loadRawResourceStyle(context, R.raw.dark_map_style))
+    }
     
     // Load custom marker icon
     LaunchedEffect(Unit) {
@@ -84,6 +94,12 @@ fun MapComponent(
                 when (event?.sensor?.type) {
                     Sensor.TYPE_ACCELEROMETER -> System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
                     Sensor.TYPE_MAGNETIC_FIELD -> System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
+                    Sensor.TYPE_LIGHT -> {
+                        // Update dark mode based on ambient light level
+                        val lightLevel = event.values[0]
+                        isDarkMode = lightLevel < LIGHT_THRESHOLD
+                        Log.d("MapComponent", "Light sensor: $lightLevel lux, Dark mode: $isDarkMode")
+                    }
                 }
                 SensorManager.getRotationMatrix(rotationMatrix, null, accelerometerReading, magnetometerReading)
                 SensorManager.getOrientation(rotationMatrix, orientationAngles)
@@ -95,7 +111,7 @@ fun MapComponent(
     }
 
     // Lifecycle handling for sensors
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, sensorManager) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -108,6 +124,12 @@ fun MapComponent(
                     sensorManager.registerListener(
                         sensorListener,
                         sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                        SensorManager.SENSOR_DELAY_UI
+                    )
+                    // Register light sensor
+                    sensorManager.registerListener(
+                        sensorListener,
+                        sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT),
                         SensorManager.SENSOR_DELAY_UI
                     )
                 }
@@ -155,7 +177,8 @@ fun MapComponent(
         cameraPositionState = cameraPositionState,
         properties = MapProperties(
             isMyLocationEnabled = locationPermissionGranted,
-            mapType = MapType.NORMAL
+            mapType = MapType.NORMAL,
+            mapStyleOptions = if (isDarkMode) darkMapStyle else null
         ),
         uiSettings = MapUiSettings(
             myLocationButtonEnabled = true,
@@ -169,7 +192,7 @@ fun MapComponent(
         onMapLoaded = {
             isMapLoaded = true
         }
-    ) {
+    )  {
         if (isMapLoaded && destinations.isNotEmpty() && customMarker != null) {
             // Add markers for each destination
             destinations.forEach { destination ->
